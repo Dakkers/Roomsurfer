@@ -1,4 +1,6 @@
+import json
 FILE = open('rooms-times-test.txt')
+DICTSFILES = open('fall2013times.txt', 'w')
 """
 This program is not meant to be used for room checking. It is only meant to be used
 to create the several dictionaries required for checking rooms. The dictionaries that
@@ -13,6 +15,8 @@ def converttominutes(time):
 
 def converttoclock(n):
 	#given a number of minutes, converts the number to 'xx:xx' (24-hour clock)
+	if n >= 780:
+		n = n - 720
 	h = str(n/60).zfill(2)
 	m = str(n%60).zfill(2)
 	return '%s:%s' %(h,m)
@@ -20,13 +24,16 @@ def converttoclock(n):
 ALLSTARTTIMES, ALLENDTIMES, ALLDAYS = [], [], ['M', 'T', 'W', 'Th', 'F']
 
 for i in xrange(8,22):
-	#generate ALL possible times a room is being used - convert them all to minutes
-	ALLSTARTTIMES.append(converttominutes(str(i).zfill(2) + ':00'))
+	#generate all possible start and end times
+	if i != 8:
+		#avoid 8:00AM - xx:xx classes - they don't exist, except for that one time...
+		ALLSTARTTIMES.append(converttominutes(str(i).zfill(2) + ':00'))
 	ALLSTARTTIMES.append(converttominutes(str(i).zfill(2) + ':30'))
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':20'))
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':50'))
-ALLTIMES = [[i,j] for i in ALLSTARTTIMES for j in ALLENDTIMES if j - i != 20 and j - i < 421]
-print len(ALLTIMES)
+ALLTIMES = [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i < 421 and j - i > 0]
+#combine all starttimes/endtimes on all days - avoid 20 minute classes and anything over 7 hours
+#also, generating all possible start/endtimes caused times such as 6:30 PM - 8:30 AM; ignore those
 
 freetimes, bookedtimes = {}, {}
 for l in FILE:
@@ -34,6 +41,8 @@ for l in FILE:
 	time = time.strip().split(' ')
 	starttime, endtime, day = converttominutes(time[0].split('-')[0]), converttominutes(time[0].split('-')[1]), time[1]
 	#starttime, endtime, day = time[0].split('-')[0], time[0].split('-')[1], time[1]
+
+	#anything less than 08:00 is assumed to be in the evening - shift by 12 hours
 	if starttime < 480:
 		starttime = starttime + 12*60
 	if endtime < 480:
@@ -53,38 +62,26 @@ for l in FILE:
 		else:
 			bookedtimes[room].append(time)
 
-#print bookedtimes['DWE 1515']
+#json.dump(bookedtimes, DICTSFILES)
 
-
-"""
-#I'm sorry.
 for room in bookedtimes:
-	#going through each room
-	freetimes[room] = []
+	#going through each room - assume that the room is always free
+	freetimes[room] = ALLTIMES
 
-	for bookedtime in bookedtimes[room]:
+	for btime in bookedtimes[room]:
 		#for the room, let's look at all of its booked times
 
-		for possibletime in ALLTIMES:
+		for ptime in ALLTIMES:
 			#now let's look at all possible times ...
-			print 
 
-			if possibletime[2] in bookedtime[2]:
-				#but only if the day of the possible time is one of the days of the booked time
+			if ptime[2] == btime[2]:
+				#but only if the days are the same
 
-				if bookedtime == possibletime:
-					#if the bookedtime and a possible time are the same, skip past it
-					continue
+				if (ptime[1] >= btime[0] >= ptime[0]) or (ptime[0] <= btime[1] <= ptime[1]) or (btime[0] <= ptime[0] <= btime[1]):
+					#if start-btime is greater than start-ptime or end-btime is less than end-ptime
+					#(i.e. the btime is completely or partially contained within the ptime)
+					#or if the ptime is completely or partially contained within the btime, remove this time from the freetimes
+					freetimes[room].remove(ptime)
 
-				elif bookedtime[0] >= possibletime[0] or bookedtime[1] <= possibletime[1]:
-					#if start-bookedtime is greater than start-possibletime or end-bookedtime is less than end-possibletime
-					#(i.e. the bookedtime is completely or partially contained within the possibletime) then skip past it
-					continue
-
-				else:
-					freetimes[room].append(possibletime)
-
-			else:
-				continue
-
-"""
+dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes}
+json.dump(dicttowrite, DICTSFILES)
