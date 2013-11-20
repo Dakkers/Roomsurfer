@@ -1,5 +1,5 @@
 import json
-FILE = open('rooms-times-test.txt')
+FILE = open('raw1139times.txt')
 DICTSFILES = open('fall2013times.txt', 'w')
 """
 This program is not meant to be used for room checking. It is only meant to be used
