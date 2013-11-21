@@ -7,6 +7,7 @@ a lecture, lab, tutorial or whatever. It is not nearly perfect yet - there
 are still some bugs taht need to be fixed. This script is not meant to be 
 used to be found the times of the room, this is just for writing."""
 
+F = open('raw1139times.txt', 'w')
 allcoms = ['CLN','DIS','ENS','ESS','FLD','LAB','LEC','ORL','PRA','PRJ','RDG','SEM','STU','TLC','TST','TUT','WRK','WSP']
 allsubs = ['AFM', 'ACTSC', 'ANTH', 'AHS', 'APPLS', 'AMATH', 'ARCH', 'ARTS', 'ARBUS', 'AVIA', 'BIOL', 'BUS', 'BET', 'CHE', 'CHEM', 'CHINA', 'CMW', 'CIVE',
 			'CLAS', 'CO', 'COMM', 'CS', 'COOP', 'CROAT', 'DAC', 'DRAMA', 'DUTCH', 'EARTH', 'EASIA', 'ECON', 'ECE', 'ENGL', 'ESL', 'EFAS', 'ENBUS', 'ERS', 
@@ -23,14 +24,8 @@ allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2'
 				'STJ', 'STP', 'TC', 'TH', 'UAE', 'UC', 'UWP', 'V1', 'WSS']
 
 
-F = open('rooms-times.txt', 'w')
-
-
 for sub in allsubs:
-	print sub
-
 	term = "1139"
-	#sub = "PACS"
 	num = ""
 
 	data = {"sess" : term, "subject" : sub, "cournum" : num}
@@ -90,7 +85,7 @@ for sub in allsubs:
 		timesrooms.append(temp)
 
 	#remove empties and classes with no rooms (online, or reading classes)
-	timesrooms = [l for l in timesrooms if len(l) != 0 and len(l) != 1]
+	timesrooms = [l for l in timesrooms if len(l) != 0 and len(l) != 1 and any(b in l[1] for b in allbuildings)]
 
 
 	#handle lab sections
