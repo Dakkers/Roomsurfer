@@ -20,6 +20,17 @@ def converttoclock(n):
 	m = str(n%60).zfill(2)
 	return '%s:%s' %(h,m)
 
+def mergeify(L):
+	#given a list of lists, L, all lists that are subsets of other lists are removed
+	#yes I stole this from StackOverflow, deal with it
+	Lcopy = L[:]
+	for m in L:
+		for n in L:
+			if set(m).issubset(set(n)) and m != n:
+				Lcopy.remove(m)
+				break
+	return Lcopy
+
 
 
 for i in xrange(8,22):
@@ -94,11 +105,33 @@ for room in bookedtimes:
 				continue
 
 
+
+"""Clean up a bit."""
 for room in bookedtimes.keys():
 	#the lab sections caused there to be duplicates of bookedtimes - get rid of those
 	bookedtimes[room] = list(set([tuple(i) for i in bookedtimes[room]]))
-for room in freetimes.keys():
-	freetimes[room] = [tuple(i) for i in freetimes[room]]
+
+freetimes_sorted = dict(freetimes) #make a copy of freetimes
+for room in freetimes_sorted.keys():
+	#this will organize the freetimes for each room by day
+	M,T,W,Th,F = [],[],[],[],[]
+	for t in freetimes_sorted[room]:
+		if 'M' in t: M.append([t[0],t[1]])
+		elif 'T' in t: T.append([t[0], t[1]])
+		elif 'W' in t: W.append([t[0], t[1]])
+		elif 'Th' in t: Th.append([t[0], t[1]])
+		else: F.append([t[0], t[1]])
+	freetimes_sorted[room] = {'M': M, 'T': T, 'W': W, 'Th': Th, 'F': F}
+
+for room in freetimes_sorted:
+	for day in freetimes_sorted[room].keys():
+		#this will merge times together; 8:30-9:20, 9:30-10:20 becomes 8:30-10:20
+		X = mergeify([xrange(l[0],l[1]+10,10) for l in freetimes_sorted[room][day]])
+		L = [[l[0], l[-1]] for l in X]
+		freetimes_sorted[room][day] = L
+
+dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes, 'freetimes_sorted': freetimes_sorted}
+json.dump(dicttowrite, DICTSFILES)
 
 
 """
@@ -118,6 +151,3 @@ for room in bookedtimes.keys():
 		temp.append(converted)
 	bookedtimes[room] = temp
 """
-
-dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes}
-json.dump(dicttowrite, DICTSFILES)
