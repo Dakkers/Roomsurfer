@@ -20,17 +20,32 @@ def converttoclock(n):
 	m = str(n%60).zfill(2)
 	return '%s:%s' %(h,m)
 
-def mergeify(L):
-	#given a list of lists, L, all lists that are subsets of other lists are removed
-	#yes I stole this from StackOverflow, deal with it
-	Lcopy = L[:]
+def remove_subsets(L):
+	#traverses through a list of lists, removing lists that are subsets of others
+	#all hail StackOverflow
+	L2 = L[:]
 	for m in L:
 		for n in L:
 			if set(m).issubset(set(n)) and m != n:
-				Lcopy.remove(m)
+				L2.remove(m)
 				break
-	return Lcopy
 
+	return L2
+
+def mergeify(L):
+	#this will remove subsets and partial subsets; 8:30-10:20,9:30-10:20 becomes 8:30-10:20
+	#and 8:30-10:30,9:30-11:00 becomes 8:30-11:00
+	L_return = []
+	for m in L:
+		temp, mxrange = range(m[0],m[1]+10,10), xrange(m[0],m[1]+10,10)
+		for n in L:
+			if any(x in xrange(n[0],n[1]+10,10) for x in mxrange) and m != n:
+				temp += range(n[0],n[1]+10,10)
+		temp = list(set(temp))
+		temp.sort()
+		L_return.append(tuple(temp))
+
+	return [[l[0], l[-1]] for l in  list(set(L_return))]
 
 
 for i in xrange(8,22):
@@ -42,8 +57,10 @@ for i in xrange(8,22):
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':20'))
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':50'))
 ALLTIMES = [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i < 540 and j - i > 0]
-#combine all starttimes/endtimes on all days - avoid 20 minute classes and anything over 7 hours
+#combine all starttimes/endtimes on all days - avoid 20 minute classes and anything over 8 hours
 #also, generating all possible start/endtimes caused times such as 6:30 PM - 8:30 AM; ignore those
+
+
 
 """This section is for getting the booked times."""
 freetimes, bookedtimes = {}, {}
@@ -65,7 +82,7 @@ for l in FILE:
 	for letter in day:
 		#get each time as individual days
 		if letter == 'h':
-			times.pop() #the previous time that was added must have been the 'T' in Th
+			times.pop() #the previous time that was added must have been the 'T' in Th - remove it
 			times.append([starttime, endtime, 'Th']) #properly add Th
 		else:
 			times.append([starttime, endtime, letter])
@@ -92,9 +109,7 @@ for room in bookedtimes:
 
 			if pt[2] == bt[2]:
 				if (pt[1] >= bt[0] >= pt[0]) or (pt[0] <= bt[1] <= pt[1]) or (bt[0] <= pt[0] <= bt[1]) or (bt[0] <= pt[1] <= bt[1]):
-					#if bt[0] in xrange(pt[0],pt[1]+10,10) or bt[1] in xrange(pt[0],pt[1]+10,10) or pt[0] in xrange(bt[0],bt[1]+10,10) or pt[1] in xrange(bt[0],bt[1]+10,10):
-					#if start-bt is greater than start-pt or end-bt is less than end-pt
-					#(i.e. the bt is completely or partially contained within the pt)
+					#if start-bt is greater than start-pt or end-bt is less than end-pt (i.e. the bt is completely or partially contained within the pt)
 					#or if the pt is completely or partially contained within the bt, remove this time from the freetimes
 					freetimes[room].remove(pt)
 					n = n-1
@@ -126,9 +141,9 @@ for room in freetimes_sorted.keys():
 for room in freetimes_sorted:
 	for day in freetimes_sorted[room].keys():
 		#this will merge times together; 8:30-9:20, 9:30-10:20 becomes 8:30-10:20
-		X = mergeify([xrange(l[0],l[1]+10,10) for l in freetimes_sorted[room][day]])
+		X = remove_subsets([xrange(l[0],l[1]+10,10) for l in freetimes_sorted[room][day]])
 		L = [[l[0], l[-1]] for l in X]
-		freetimes_sorted[room][day] = L
+		freetimes_sorted[room][day] = mergeify(L)
 
 dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes, 'freetimes_sorted': freetimes_sorted}
 json.dump(dicttowrite, DICTSFILES)
