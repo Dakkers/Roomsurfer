@@ -1,10 +1,10 @@
 import json
 FILE = open('raw1139times.txt')
-DICTSFILES = open('fall2013times.txt', 'w')
+DICTSFILES = open('fall2013times.json', 'w')
 """
 This program is not meant to be used for room checking. It is only meant to be used
 to create the several dictionaries required for checking rooms. The dictionaries that
-are created are explicitly put in their own Python file.
+are created are explicitly put in their files.
 """
 
 ALLSTARTTIMES, ALLENDTIMES, ALLDAYS = [], [], ['M', 'T', 'W', 'Th', 'F']
@@ -46,6 +46,15 @@ def mergeify(L):
 		L_return.append(tuple(temp))
 
 	return [[l[0], l[-1]] for l in  list(set(L_return))]
+
+def sorter(L):
+	#given a list of lists, sorts the lists by the list's first element (small to large)
+	if len(L) == 0 or len(L) == 1:
+		return L
+	d = {str(l[0]): l for l in L}
+	mins = d.keys()
+	mins.sort()
+	return [d[key] for key in mins]
 
 
 for i in xrange(8,22):
@@ -140,29 +149,10 @@ for room in freetimes_sorted.keys():
 
 for room in freetimes_sorted:
 	for day in freetimes_sorted[room].keys():
-		#this will merge times together; 8:30-9:20, 9:30-10:20 becomes 8:30-10:20
+		#clean up lists... a lot
 		X = remove_subsets([xrange(l[0],l[1]+10,10) for l in freetimes_sorted[room][day]])
 		L = [[l[0], l[-1]] for l in X]
-		freetimes_sorted[room][day] = mergeify(L)
+		freetimes_sorted[room][day] = sorter(mergeify(L))
 
 dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes, 'freetimes_sorted': freetimes_sorted}
 json.dump(dicttowrite, DICTSFILES)
-
-
-"""
-#convert all times from minutes to a 24-hour clock
-for room in freetimes.keys():
-	temp = []
-	for l in freetimes[room]:
-		converted = '%s-%s %s' %(converttoclock(l[0]), converttoclock(l[1]), l[2])
-		#print l, converted
-		temp.append(converted)
-	freetimes[room] = temp
-
-for room in bookedtimes.keys():
-	temp = []
-	for l in bookedtimes[room]:
-		converted = '%s-%s %s' %(converttoclock(l[0]), converttoclock(l[1]), l[2])
-		temp.append(converted)
-	bookedtimes[room] = temp
-"""
