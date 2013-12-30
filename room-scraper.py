@@ -7,7 +7,7 @@ a lecture, lab, tutorial or whatever. It is not nearly perfect yet - there
 are still some bugs taht need to be fixed. This script is not meant to be 
 used to be found the times of the room, this is just for writing."""
 
-F = open('raw1139times.txt', 'w')
+F = open('raw1141times.txt', 'w')
 allcoms = ['CLN','DIS','ENS','ESS','FLD','LAB','LEC','ORL','PRA','PRJ','RDG','SEM','STU','TLC','TST','TUT','WRK','WSP']
 allsubs = ['AFM', 'ACTSC', 'ANTH', 'AHS', 'APPLS', 'AMATH', 'ARCH', 'ARTS', 'ARBUS', 'AVIA', 'BIOL', 'BUS', 'BET', 'CHE', 'CHEM', 'CHINA', 'CMW', 'CIVE',
 			'CLAS', 'CO', 'COMM', 'CS', 'COOP', 'CROAT', 'DAC', 'DRAMA', 'DUTCH', 'EARTH', 'EASIA', 'ECON', 'ECE', 'ENGL', 'ESL', 'EFAS', 'ENBUS', 'ERS', 
@@ -16,7 +16,6 @@ allsubs = ['AFM', 'ACTSC', 'ANTH', 'AHS', 'APPLS', 'AMATH', 'ARCH', 'ARTS', 'ARB
 			'MUSIC', 'NE', 'NATST', 'OPTOM', 'PACS', 'PHARM', 'PHIL', 'PHYS', 'PLAN', 'POLSH', 'PSCI', 'PORT', 'PD', 'PDPHRM', 'PSYCH', 'PMATH', 'REC', 'RS',
 			'RUSS', 'REES', 'SCI', 'SCBUS', 'SMF', 'SDS', 'SOCWK', 'SWREN', 'STV', 'SOC', 'SE', 'SPAN', 'SPCOM', 'STAT', 'SI', 'SYDE', 'UNIT', 'VCULT', 'WS',
 			'WKRPT']
-
 alldays = ['Th', 'Su', 'M', 'T', 'W', 'F', 'S']
 allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2', 'CGR', 'CIF', 'CLN', 'CLV', 'COG', 'COM', 'CPH', 'CSB', 'DC', 'DWE', 'E2',
 				'E3', 'E5', 'E6', 'ECH', 'EIT', 'ERC', 'EV1', 'EV2', 'EV3', 'ESC', 'FED', 'GA', 'GH', 'GSC', 'HH', 'HMN', 'HS', 'HSC', 'IHB', 'KDC', 'LHI', 
@@ -25,7 +24,7 @@ allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2'
 
 
 for sub in allsubs:
-	term = "1139"
+	term = "1141"
 	num = ""
 
 	data = {"sess" : term, "subject" : sub, "cournum" : num}
@@ -111,12 +110,17 @@ for sub in allsubs:
 
 	#something kinda weird was going on...
 	#but remove all lists that don't have any building names in them - this happens due to TST sections
-	for l in timesrooms:
+	i,n = 0,len(timesrooms)
+	while i < n:
+		l = timesrooms[i]
 		if not any(b in l[0] for b in allbuildings):
 			timesrooms.remove(l)
+			n=n-1
+		else:
+			i=i+1
 
 	#separate and write
-	for l in timesrooms: 
+	for l in timesrooms:
 		room = l[0]
 
 		try:
@@ -126,8 +130,6 @@ for sub in allsubs:
 			L = [room, "%s-%s %s" %(starttime, endtime, days)]
 
 		except:
-			if not any(b in l[0] for b in allbuildings):
-				l = l[::-1]
 			stuff = l[1].split('-')
 			starttime = stuff[0]
 			days = ''.join([i for i in stuff[1] if (i in string.lowercase or i in string.uppercase)])

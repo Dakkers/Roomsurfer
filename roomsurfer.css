@@ -1,0 +1,218 @@
+/*
+* Some of this CSS is taken from a project called "Fluid Social Navbar",
+* seen at http://cssdeck.com/labs/jjrjg1bc - I just tweaked it to my 
+* liking, as it is an awesome layout for buttons.
+*/
+
+@import url("http://fonts.googleapis.com/css?family=Ubuntu+Condensed");
+*{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+body {
+	font: 20px/19px normal 'Ubuntu Condensed', sans-serif;
+	background-color: lightgrey;
+}
+
+
+/*
+===================
+=header
+===================
+*/
+#header {
+	clear: both;
+	width: 95%;
+	margin: auto;
+}
+
+#header h1 {
+	margin-left: -5%;
+	margin-bottom: 20px;
+	display: inline-block;
+}
+
+#header a {	text-decoration: none;	}
+
+
+/*
+===================
+=those fancy buttons!
+===================
+*/
+.nav {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	text-align: center;
+}
+
+.nav li:hover {
+	opacity: 1.0;
+	cursor: default;
+}
+
+.fancybutton {
+	position: relative;
+	width: 30%;
+	padding: 2%;
+	margin: 0 auto 2% auto;
+	box-shadow: 8px 8px 0 0px rgba(0, 0, 0, 0.25);
+	background-color: rgba(0,0,0,0.07);
+	opacity: 0.7;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+@media all and (max-width: 699px) and (min-width: 1px) {
+	.fancybutton { font-size: 12px;	}
+}
+@media all and (min-width: 700px) and (max-width: 1199px) {
+	.fancybutton { font-size: 16px; }
+}
+@media all and (min-width: 1200px) {
+	.fancybutton { font-size: 24px }
+}
+
+.roomsbutton {
+	border-left: 50px solid rgb(255,255,255);
+}
+
+ .timesbutton {
+	border-left: 50px solid rgb(0,0,0);
+}
+
+
+/*
+===================
+=splash
+===================
+*/
+#splash {
+	margin: auto;
+	overflow: auto;
+	border: 0px solid;
+	border-radius: 5px;
+}
+
+#splash p {
+	margin-top: 0.5%;
+}
+
+
+/*
+===================
+=input screen (both rooms and times screens)
+===================
+*/
+.inputscreen {
+	display: none;
+	border: 0px solid;
+	border-radius: 5px;
+	padding-bottom: 2px;
+}
+
+.inputscreen h3 {
+	margin-top: 1%;
+}
+
+.inputscreen p {
+	margin-top: -2%;
+}
+
+#times-to-rooms, #rooms-to-times {
+	display: none;
+	margin: -7.5% 0 0 80%;
+}
+
+#giveroom, #gettimes, #rooms select, #getrooms, #day {
+	padding: 4px;
+	font: 18px normal 'Ubuntu Condensed', sans-serif;
+}
+
+#giveroom:focus, #rooms select:focus {
+	outline: none;
+	border-color: #09f;	
+	color: #222;
+}
+
+
+/*
+===================
+=times
+===================
+*/
+#times {
+	overflow: hidden;
+}
+
+#times a {
+	color: black;
+}
+			
+#giveroom {
+	background: #fff;
+	text-transform: uppercase;
+	border: 1px solid rgba(0, 0, 0, .2);
+	width: 18%;
+}
+
+#desctimes {
+	display: none;
+}
+
+#freetimeinfo {
+	display: none;
+	text-align: center;
+	margin: 0 auto;
+}
+
+#Monday, #Tuesday, #Wednesday, #Thursday, #Friday {
+	float: left;
+	width: 20%;
+	font-size: 90%;
+}
+
+
+/*
+===================
+=rooms
+===================
+*/
+#starttime, #endtime {
+	width: 13%;
+	margin-bottom: 30px;
+}
+
+#day {
+	width: 6.5%;
+}
+
+#descrooms {
+	display: none;
+}
+
+
+/*
+===================
+=misc
+===================
+*/
+.centering {
+	text-align: center;
+}
+
+#container {
+	margin: auto;
+	width: 56%;
+}
+
+a {
+	color: black;
+}

@@ -1,10 +1,10 @@
 import json
-FILE = open('raw1139times.txt')
-DICTSFILES = open('fall2013times.json', 'w')
+FILE = open('raw1141times.txt')
+DICTSFILES = open('1141times.json', 'w')
 """
 This program is not meant to be used for room checking. It is only meant to be used
-to create the several dictionaries required for checking rooms. The dictionaries that
-are created are explicitly put in their files.
+to create the dictionary required for checking rooms. The dictionary that is 
+created is put into a JSON file.
 """
 
 ALLSTARTTIMES, ALLENDTIMES, ALLDAYS = [], [], ['M', 'T', 'W', 'Th', 'F']
@@ -13,12 +13,6 @@ def converttominutes(time):
 	h,m = time.split(':')
 	h, m = 60*int(h), int(m)
 	return h+m
-
-def converttoclock(n):
-	#given a number of minutes, converts the number to 'xx:xx' (24-hour clock)
-	h = str(n/60).zfill(2)
-	m = str(n%60).zfill(2)
-	return '%s:%s' %(h,m)
 
 def remove_subsets(L):
 	#traverses through a list of lists, removing lists that are subsets of others
@@ -52,9 +46,9 @@ def sorter(L):
 	if len(L) == 0 or len(L) == 1:
 		return L
 	d = {str(l[0]): l for l in L}
-	mins = d.keys()
+	mins = [int(i) for i in d.keys()]
 	mins.sort()
-	return [d[key] for key in mins]
+	return [d[str(key)] for key in mins]
 
 
 for i in xrange(8,22):
@@ -154,5 +148,11 @@ for room in freetimes_sorted:
 		L = [[l[0], l[-1]] for l in X]
 		freetimes_sorted[room][day] = sorter(mergeify(L))
 
-dicttowrite = {'bookedtimes': bookedtimes, 'freetimes': freetimes, 'freetimes_sorted': freetimes_sorted}
+"""Create a dictionary with each key being a possible freetime, and its value being all the rooms free at that time."""
+d = {}
+for t in [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i > 0]:
+	d[','.join([str(i) for i in t])] = [room for room in freetimes.keys() if t in freetimes[room]]
+	d[','.join([str(i) for i in t])].sort()
+
+dicttowrite = {'freerooms': d, 'freetimes_sorted': freetimes_sorted}
 json.dump(dicttowrite, DICTSFILES)
