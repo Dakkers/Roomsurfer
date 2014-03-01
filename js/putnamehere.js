@@ -52,6 +52,10 @@ function dayname(abbrv) {
 	return hmph[abbrv];
 }
 
+function sortNum(a,b) {
+	return a - b;
+}
+
 
 $(document).ready(function () {
 	var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -65,12 +69,45 @@ $(document).ready(function () {
 			masterdict[key] = val;
 		});
 	});
-	
 
-	$('#gettimes').click(function() {
+	var allcodes = {}; //format: {"PHY": ["145", "150", ...], ...}
+
+	function updateselects() {
+		//add all of the buildings used this term to the Building select box
+		allcodes = {};
 		var fts = masterdict["freetimes_sorted"];
-		var room = $("#giveroom").val().toUpperCase(); //make sure user doesn't put in lowercase room name
-		if (room in fts) {
+		var codes = Object.keys(fts);
+		codes.sort();
+		$("#build").empty();
+
+		for (var i=0; i<codes.length; i++) {
+			var b = codes[i].split(" ")[0], num = parseInt(codes[i].split(" ")[1]);
+			if (!(allcodes.hasOwnProperty(b))) {
+				allcodes[b] = [num]
+				$("#build").append( $(new Option(b, b) ) );
+			} else {
+				allcodes[b].push(num);
+			}
+		}
+	}
+
+	$("#build").change(function() {
+		//makes the combobox possible - upon changing the building select, removes all room numbers in
+		//the roomnumber select and adds the ones for the new building
+		$("#roomnum").empty();
+		var rooms = allcodes[$("#build").val()]; //["145", "150"...]
+		rooms.sort(sortNum);
+		for (var i=0; i<rooms.length; i++) {
+			$("#roomnum").append( $(new Option(rooms[i], rooms[i]) ) );
+		}
+	});
+	 
+	$('#gettimes').click(function() {
+		//var room = $("#giveroom").val().toUpperCase(); //make sure user doesn't put in lowercase room name
+		var fts = masterdict["freetimes_sorted"];
+		var room = $("#build").val() + " " + $("#roomnum").val();
+
+		if (fts.hasOwnProperty(room)) {
 			the_times = gettimes(masterdict, room); //I am so hungry
 
 			if ($("#freetimeinfo").is(':visible')) {
@@ -128,8 +165,21 @@ $(document).ready(function () {
 
 			} else {
 
+				var temp = {}; //format: {"BUILDING": [100, 150, 175]}
+				for (var i=0; i<freerooms.length; i++) {
+					var b = freerooms[i].split(" ")[0], num = freerooms[i].split(" ")[1];
+					if (!(temp.hasOwnProperty(b))) {
+						temp[b] = [num];
+					} else {
+						temp[b].push(num);
+					}
+				}
+
 				$("#descrooms").html("The following rooms are available at <strong>" + converttoclock($("#starttime").val()) + " - " + converttoclock($("#endtime").val()) + "</strong> \
-					on <strong>" + dayname(day) + "</strong><br><br>" + freerooms.join(", "));
+					on <strong>" + dayname(day) + "</strong>:<br><br>");
+				for (var key in temp) {
+					$("#descrooms").append("<h4>"+ key +"</h4><p>"+ temp[key].join(", ") + "</p>");
+				}
 				if (!$("#descrooms").is(":visible")) {
 					$("#descrooms").delay(100).fadeIn(400);
 				}
@@ -139,6 +189,7 @@ $(document).ready(function () {
 
 
 	$("#splashtimes").click(function() {
+		updateselects();
 		$("#splash").fadeOut(500);
 		$("#times").delay(800).fadeIn(500);
 		$("#times-to-rooms").delay(800).fadeIn(500);
@@ -151,6 +202,8 @@ $(document).ready(function () {
 	});
 
 	$("#rooms-to-times").click(function() {
+		updateselects();
+		$("#roomnum").empty();
 		$("#rooms").fadeOut(500);
 		$("#rooms-to-times").fadeOut(500);
 		$("#times").delay(500).fadeIn(500);
@@ -171,7 +224,5 @@ $(document).ready(function () {
 		$("#descrooms").html("");
 		$("#desctimes").fadeOut(500);
 
-	});
-
-	
+	});	
 });

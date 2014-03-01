@@ -113,8 +113,6 @@ body {
 */
 .inputscreen {
 	display: none;
-	border: 0px solid;
-	border-radius: 5px;
 	padding-bottom: 2px;
 }
 
@@ -131,7 +129,7 @@ body {
 	margin: -7.5% 0 0 80%;
 }
 
-#giveroom, #gettimes, #rooms select, #getrooms, #day {
+#rooms select, #times select, #getrooms, #gettimes {
 	padding: 4px;
 	font: 18px normal 'Ubuntu Condensed', sans-serif;
 }
@@ -196,6 +194,14 @@ body {
 
 #descrooms {
 	display: none;
+}
+
+#descrooms p {
+	margin-top: -3.2%;
+}
+
+#descrooms h4 {
+	margin-top: 0;
 }
 
 
