@@ -1,4 +1,4 @@
-/*
+	/*
 * Some of this CSS is taken from a project called "Fluid Social Navbar",
 * seen at http://cssdeck.com/labs/jjrjg1bc - I just tweaked it to my 
 * liking, as it is an awesome layout for buttons.
@@ -26,6 +26,7 @@ body {
 	clear: both;
 	width: 95%;
 	margin: auto;
+	display: none;
 }
 
 #header h1 {
@@ -35,6 +36,101 @@ body {
 }
 
 #header a {	text-decoration: none;	}
+
+
+/*
+===================
+=main
+===================
+*/
+#main {
+	margin: auto;
+	overflow: auto;
+	display: none;
+}
+
+#main p {
+	margin-top: 0.5%;
+}
+
+
+/*
+===================
+=input screen (both rooms and times screens)
+===================
+*/
+.info {
+	display: none;
+	padding-bottom: 2px;
+}
+
+.info h3 {
+	margin-top: 1%;
+}
+
+.info p {
+	margin-top: -2%;
+}
+
+#t-to-r, #r-to-t {
+	display: none;
+	margin: -7.5% 0 0 80%;
+}
+
+#rooms select, #times select, #btn-get-r, #btn-get-t {
+	padding: 4px;
+	font: 18px normal 'Ubuntu Condensed', sans-serif;
+}
+
+#giveroom:focus, #rooms select:focus {
+	outline: none;
+	border-color: #09f;	
+	color: #222;
+}
+
+
+/*
+===================
+=times
+===================
+*/
+#times a {
+	color: black;
+}
+
+#info-t {
+	text-align: center;
+	margin: 0 auto;
+}
+
+#Monday, #Tuesday, #Wednesday, #Thursday, #Friday {
+	float: left;
+	width: 20%;
+	font-size: 90%;
+}
+
+
+/*
+===================
+=rooms
+===================
+*/
+#sel-starttime, #sel-endtime {
+	width: 13%;
+	margin-bottom: 30px;
+}
+
+#sel-day {
+	width: 6.5%;
+}
+
+#descrooms p {
+	margin-top: -3.2%;
+}
+
+#descrooms h4 {
+	margin-top: 0;
+}
 
 
 /*
@@ -54,7 +150,7 @@ body {
 	cursor: default;
 }
 
-.fancybutton {
+.btn-fancy {
 	position: relative;
 	width: 30%;
 	padding: 2%;
@@ -71,137 +167,21 @@ body {
 }
 
 @media all and (max-width: 699px) and (min-width: 1px) {
-	.fancybutton { font-size: 12px;	}
+	.btn-fancy { font-size: 12px;	}
 }
 @media all and (min-width: 700px) and (max-width: 1199px) {
-	.fancybutton { font-size: 16px; }
+	.btn-fancy { font-size: 16px; }
 }
 @media all and (min-width: 1200px) {
-	.fancybutton { font-size: 24px }
+	.btn-fancy { font-size: 24px }
 }
 
-.roomsbutton {
+.btn-r {
 	border-left: 50px solid rgb(255,255,255);
 }
 
- .timesbutton {
+ .btn-t {
 	border-left: 50px solid rgb(0,0,0);
-}
-
-
-/*
-===================
-=splash
-===================
-*/
-#splash {
-	margin: auto;
-	overflow: auto;
-	border: 0px solid;
-	border-radius: 5px;
-}
-
-#splash p {
-	margin-top: 0.5%;
-}
-
-
-/*
-===================
-=input screen (both rooms and times screens)
-===================
-*/
-.inputscreen {
-	display: none;
-	padding-bottom: 2px;
-}
-
-.inputscreen h3 {
-	margin-top: 1%;
-}
-
-.inputscreen p {
-	margin-top: -2%;
-}
-
-#times-to-rooms, #rooms-to-times {
-	display: none;
-	margin: -7.5% 0 0 80%;
-}
-
-#rooms select, #times select, #getrooms, #gettimes {
-	padding: 4px;
-	font: 18px normal 'Ubuntu Condensed', sans-serif;
-}
-
-#giveroom:focus, #rooms select:focus {
-	outline: none;
-	border-color: #09f;	
-	color: #222;
-}
-
-
-/*
-===================
-=times
-===================
-*/
-#times {
-	overflow: hidden;
-}
-
-#times a {
-	color: black;
-}
-			
-#giveroom {
-	background: #fff;
-	text-transform: uppercase;
-	border: 1px solid rgba(0, 0, 0, .2);
-	width: 18%;
-}
-
-#desctimes {
-	display: none;
-}
-
-#freetimeinfo {
-	display: none;
-	text-align: center;
-	margin: 0 auto;
-}
-
-#Monday, #Tuesday, #Wednesday, #Thursday, #Friday {
-	float: left;
-	width: 20%;
-	font-size: 90%;
-}
-
-
-/*
-===================
-=rooms
-===================
-*/
-#starttime, #endtime {
-	width: 13%;
-	margin-bottom: 30px;
-}
-
-#day {
-	width: 6.5%;
-}
-
-#descrooms {
-	display: none;
-}
-
-#descrooms p {
-	margin-top: -3.2%;
-}
-
-#descrooms h4 {
-	margin-top: 0;
 }
 
 

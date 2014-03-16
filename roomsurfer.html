@@ -4,25 +4,27 @@
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="css/roomsurfer.css">
 	<script type="text/javascript" src="js/jquery.min.js"></script>
-	<script type="text/javascript" src="js/putnamehere.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
 	<link rel="shortcut icon" href="img/logo2favicon.ico">
 	<title>Roomsurfer</title> 
 </head>
 <body>
 <div id="container">
 
+<!-- GOALS:
+
+	- make the fancy buttons that are actually <li>s into Flat UI buttons
+	- use templates for selects
+	- be awesome
+
+-->
+
+
 <div id="header">
 	<h1><a href="index.html">Roomsurfer</a></h1>
-	<ul class="nav">
-		<li class="fancybutton roomsbutton" id="times-to-rooms">Find rooms</li>
-	</ul>
-	<ul class="nav">
-		<li class="fancybutton timesbutton" id="rooms-to-times">Find times</li>
-	</ul>
 </div>
 
-
-<div id="splash">
+<div id="main">
 	<p>Welcome to Roomsurfer! This page is meant to be used by University of Waterloo students when they are in need of a room
 	to study in. Click "Find times" to find out when a particular room is free, or click "Find rooms" to find out what 
 	rooms are free at a specific time. The current term is Winter 2014 (1141).</p> 
@@ -31,53 +33,45 @@
 	not appear here. This will only be able to display when a particular room does not have a class in it. Perhaps one day I 
 	will be able to handle private bookings.</p>
 	<ul class="nav">
-		<li class="fancybutton timesbutton" id="splashtimes">Find times</li>
-		<li class="fancybutton roomsbutton" id="splashrooms">Find rooms</li>
+		<li class="btn-fancy btn-t btn-main" id="btn-main-t">Find times</li>
+		<li class="btn-fancy btn-r btn-main" id="btn-main-r">Find rooms</li>
 	</ul>
 
 	<p>Like this project? Wanna see the source code? Got an issue? Check out the GitHub repo <a href="https://github.com/StDako/Roomsurfer">here</a>.</p>
 </div>
 
-
-<div id="times" class="inputscreen">
+<div id="times" class="info">
 	<h3>Find free times</h3>
-	<p>Enter a room to check when it's free. You should note that the latest a class can
-		run is 9:50 PM, so if a room is free until then, it will be free afterwards too. To see a full list of all building 
-		abbreviations, click <a href="https://uwaterloo.ca/map/">here</a>.</p>
+	<p>Enter a room to check when it's free. You should note that the latest a class can 
+		run is 9:50 PM, so if a room is free until then, it will be free afterwards too. 
+		To see a full list of all building abbreviations, click <a href="https://uwaterloo.ca/map/">here</a>.</p>
 	<div class="centering">
-		<select id="build"></select><select id="roomnum"></select><button id="gettimes">Check Times</button>
-	</div><br><br>
+		<select id="sel-building"></select>    <!-- here we should use templates for all building names and room numbers -->
+		<select id="sel-roomnum"></select>
+		<button id="btn-get-t">Check Times</button>
+	</div>
 	
-	<p id="desctimes"></p>
-	<p id="freetimeinfo">
+	<p id="info-t">
 		<span id="Monday"></span><span id="Tuesday"></span><span id="Wednesday"></span><span id="Thursday"></span><span id="Friday"></span>
 	</p>
 </div>
 
 
-<div id="rooms" class="inputscreen">
+
+<div id="rooms" class="info">
 	<h3>Find free rooms</h3>
 	<p>Select a time interval (start time and end time) to check what rooms are free.</p>
-
 	<div class="centering">
-		<select id="starttime">
-			<option value="510">8:30 AM</option><option value="540">9:00 AM</option><option value="570">9:30 AM</option><option value="600">10:00 AM</option><option value="630">10:30 AM</option><option value="660">11:00 AM</option><option value="690">11:30 AM</option><option value="720">12:00 PM</option><option value="750">12:30 PM</option><option value="780">1:00 PM</option><option value="810">1:30 PM</option><option value="840">2:00 PM</option><option value="870">2:30 PM</option><option value="900">3:00 PM</option><option value="930">3:30 PM</option><option value="960">4:00 PM</option><option value="990">4:30 PM</option><option value="1020">5:00 PM</option><option value="1050">5:30 PM</option><option value="1080">6:00 PM</option><option value="1110">6:30 PM</option><option value="1140">7:00 PM</option>
-		</select>
-		<select id="endtime">
-			<option value="560">9:20 AM</option><option value="590">9:50 AM</option><option value="620">10:20 AM</option><option value="650">10:50 AM</option><option value="680">11:20 AM</option><option value="710">11:50 AM</option><option value="740">12:20 PM</option><option value="770">12:50 PM</option><option value="800">1:20 PM</option><option value="830">1:50 PM</option><option value="860">2:20 PM</option><option value="890">2:50 PM</option><option value="920">3:20 PM</option><option value="950">3:50 PM</option><option value="980">4:20 PM</option><option value="1010">4:50 PM</option><option value="1040">5:20 PM</option><option value="1070">5:50 PM</option><option value="1100">6:20 PM</option><option value="1130">6:50 PM</option><option value="1160">7:20 PM</option><option value="1190">7:50 PM</option><option value="1220">8:20 PM</option><option value="1250">8:50 PM</option><option value="1280">9:20 PM</option><option value="1310">9:50 PM</option>
-		</select>
-		<select id="day">
-			<option value="M">M</option><option value="T">T</option><option value="W">W</option><option value="Th">Th</option><option value="F">F</option>
-		</select>
-		<button id="getrooms">Check Rooms</button>
+		<select name="" id="sel-starttime"></select> <!--here we should use templates to generate all start/endtimes and days -->
+		<select name="" id="sel-endtime"></select>
+		<select name="" id="sel-day"></select>
+		<button id="btn-get-r">Check Rooms</button>
 	</div>
 
-	<p id="descrooms"></p>
-
+	<p id="info-r"></p>
 </div>
 
 
-</div>
 
 </div>
 </body>
