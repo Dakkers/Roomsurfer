@@ -7,7 +7,7 @@ a lecture, lab, tutorial or whatever. It is not nearly perfect yet - there
 are still some bugs taht need to be fixed. This script is not meant to be 
 used to be found the times of the room, this is just for writing."""
 
-F = open('raw1141times.txt', 'w')
+#F = open('raw1141times.txt', 'w')
 allcoms = ['CLN','DIS','ENS','ESS','FLD','LAB','LEC','ORL','PRA','PRJ','RDG','SEM','STU','TLC','TST','TUT','WRK','WSP']
 allsubs = ['AB', 'ACC', 'ACINTY', 'ACTSC', 'ADMGT', 'AFM', 'AHS', 'AMATH', 'ANTH', 'APPLS', 'ARBUS', 'ARCH', 'ARCHL', 'ARTS', 'ASTRN', 'AVIA', 
 			'BE', 'BET', 'BIOL', 'BUS', 'CEDEV', 'CHE', 'CHEM', 'CHINA', 'CIVE', 'CLAS', 'CM', 'CO', 'COGSCI', 'COMM', 'COMST', 'CONST', 'COOP', 
@@ -18,7 +18,7 @@ allsubs = ['AB', 'ACC', 'ACINTY', 'ACTSC', 'ADMGT', 'AFM', 'AHS', 'AMATH', 'ANTH
 			'NATST', 'NE', 'OPTOM', 'PACS', 'PD', 'PDPHRM', 'PHARM', 'PHIL', 'PHS', 'PHYS', 'PLAN', 'PMATH', 'POLSH', 'PORT', 'PS', 'PSCI', 
 			'PSYCH', 'QIC', 'REC', 'REES', 'RELC', 'RS', 'RUSS', 'SCBUS', 'SCI', 'SDS', 'SE', 'SEQ', 'SI', 'SMF', 'SOC', 'SOCIN', 'SOCWK', 'SPAN',
 			'SPCOM', 'STAT', 'STV', 'SUSM', 'SWK', 'SWREN', 'SYDE', 'TAX', 'TN', 'TOUR', 'TPM', 'TS', 'UN', 'UNIV', 'VCULT', 'WATER', 'WS']
-alldays = ['Th', 'Su', 'M', 'T', 'W', 'F', 'S']
+alldays = ['Th', 'M', 'T', 'W', 'F']
 allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2', 'CGR', 'CIF', 'CLN', 'CLV', 'COG', 'COM', 'CPH', 'CSB', 'DC', 'DWE', 'E2',
 				'E3', 'E5', 'E6', 'ECH', 'EIT', 'ERC', 'EV1', 'EV2', 'EV3', 'ESC', 'FED', 'GA', 'GH', 'GSC', 'HH', 'HMN', 'HS', 'HSC', 'IHB', 'KDC', 'LHI', 
 				'LIB', 'M3', 'MC', 'MHR', 'MKV', 'ML', 'NH', 'OPT', 'PAC', 'PAS', 'PHR', 'PHY', 'QNC', 'RA2', 'RAC', 'RCH', 'REN', 'REV', 'SCH', 'SLC',
@@ -34,6 +34,7 @@ for sub in allsubs:
 	content = urllib2.urlopen("http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl",	encoded_data)
 	soup = BeautifulSoup(content.read())
 	stuff = soup.find_all("td", align="center")
+	if 'AL 6' in stuff: print stuff
 	l = [str(i.text).strip() for i in stuff]
 
 
@@ -139,4 +140,4 @@ for sub in allsubs:
 			date = stuff[1][-5:]
 			L = [room, "%s-%s %s %s" %(starttime, endtime, date, days)]
 
-		F.write(', '.join(L) + "\n")
+		#F.write(', '.join(L) + "\n")

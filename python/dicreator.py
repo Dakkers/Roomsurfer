@@ -1,13 +1,17 @@
-import json
-FILE = open('raw1141times.txt')
-DICTSFILES = open('1141times.json', 'w')
 """
 This program is not meant to be used for room checking. It is only meant to be used
 to create the dictionary required for checking rooms. The dictionary that is 
 created is put into a JSON file.
 """
+import json
 
+
+"""Constants."""
+FILE = open('raw1145times.txt')
+DICTSFILES = open('1145times.json', 'w')
 ALLSTARTTIMES, ALLENDTIMES, ALLDAYS = [], [], ['M', 'T', 'W', 'Th', 'F']
+
+"""Functions for making the lists pretty."""
 def converttominutes(time):
 	#given a time, xx:xx, finds its value in minutes
 	h,m = time.split(':')
@@ -51,6 +55,14 @@ def sorter(L):
 	return [d[str(key)] for key in mins]
 
 
+"""Functions for map, filter..."""
+def is_proper_class(L):
+	return (L[1]-L[0] != 20 and L[1]-L[0] < 540 and L[1]-L[0]>0)
+
+def is_in_list(a,L):
+	return (a in L)
+
+
 for i in xrange(8,22):
 	#generate all possible start and end times
 	if i != 8:
@@ -59,7 +71,8 @@ for i in xrange(8,22):
 	ALLSTARTTIMES.append(converttominutes(str(i).zfill(2) + ':30'))
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':20'))
 	ALLENDTIMES.append(converttominutes(str(i).zfill(2) + ':50'))
-ALLTIMES = [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i < 540 and j - i > 0]
+ALLTIMES = [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS]# if j - i != 20 and j - i < 540 and j - i > 0]
+ALLTIMES = filter(is_proper_class, ALLTIMES)
 #combine all starttimes/endtimes on all days - avoid 20 minute classes and anything over 8 hours
 #also, generating all possible start/endtimes caused times such as 6:30 PM - 8:30 AM; ignore those
 
@@ -70,11 +83,8 @@ freetimes, bookedtimes = {}, {}
 for l in FILE:
 	room,time = l.split(',')
 	time = time.strip().split(' ')
-	if len(time) == 2:
-		starttime, endtime, day = converttominutes(time[0].split('-')[0]), converttominutes(time[0].split('-')[1]), time[1]
-	else:
-		starttime, endtime, day = converttominutes(time[0].split('-')[0]), converttominutes(time[0].split('-')[1]), time[2]
-
+	starttime, endtime, day = converttominutes(time[0].split('-')[0]), converttominutes(time[0].split('-')[1]), time[1]
+	
 	#anything less than 08:00 is assumed to be in the evening - shift by 12 hours as the latest start time is 7 PM
 	if endtime < 480 or starttime < 480:
 		endtime = endtime + 12*60
@@ -101,7 +111,7 @@ for l in FILE:
 """This section is for getting the free times."""
 for room in bookedtimes:
 	#going through each room - assume that the room is always free
-	freetimes[room] = [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i < 540 and j - i > 0]
+	freetimes[room] = ALLTIMES[:]
 
 	for bt in bookedtimes[room]:
 		#for the room, let's look at all of its booked times
@@ -125,9 +135,9 @@ for room in bookedtimes:
 
 
 """Clean up a bit."""
-for room in bookedtimes.keys():
+#for room in bookedtimes.keys(): #THIS ISN'T NEEDED RIGHT NOW
 	#the lab sections caused there to be duplicates of bookedtimes - get rid of those
-	bookedtimes[room] = list(set([tuple(i) for i in bookedtimes[room]]))
+	#bookedtimes[room] = list(set(map(tuple, bookedtimes[room])))
 
 freetimes_sorted = dict(freetimes) #make a copy of freetimes
 for room in freetimes_sorted.keys():
@@ -150,7 +160,8 @@ for room in freetimes_sorted:
 
 """Create a dictionary with each key being a possible freetime, and its value being all the rooms free at that time."""
 d = {}
-for t in [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i > 0]:
+#for t in [[i,j,day] for i in ALLSTARTTIMES for j in ALLENDTIMES for day in ALLDAYS if j - i != 20 and j - i > 0]:
+for t in ALLTIMES:
 	d[','.join([str(i) for i in t])] = [room for room in freetimes.keys() if t in freetimes[room]]
 	d[','.join([str(i) for i in t])].sort()
 
