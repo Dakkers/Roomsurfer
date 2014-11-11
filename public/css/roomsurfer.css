@@ -1,0 +1,80 @@
+@import url("http://fonts.googleapis.com/css?family=Ubuntu+Condensed");
+body {
+  font: 20px/19px normal "Ubuntu Condensed", sans-serif;
+  background-color: lightgrey;
+  margin: auto;
+  width: 800px; }
+
+h1 {
+  margin-left: -5%;
+  margin-bottom: 20px;
+  display: inline-block; }
+
+/* FANCY BUTTON STUFF */
+.btn-nav {
+  position: relative;
+  width: 30%;
+  padding: 2%;
+  margin: 0 auto 2% auto;
+  box-shadow: 8px 8px 0 0px rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.07);
+  opacity: 0.7;
+  text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  hover-opacity: 1;
+  hover-cursor: default; }
+
+.btn-rooms {
+  border-left: 50px solid white; }
+
+.btn-times {
+  border-left: 50px solid black; }
+
+/* buttons that appear on individual pages - shift them up a bunch */
+.header {
+  margin: -7.5% 0 -2% 80%; }
+
+/* HOME */
+#splash {
+  margin: auto;
+  overflow: auto;
+  border: 0px solid;
+  border-radius: 5px; }
+  #splash p {
+    margin-top: 0.5%; }
+
+/* ROOMS/TIMES */
+.inputscreen {
+  padding-bottom: 2px; }
+  .inputscreen h3 {
+    margin-top: 1%; }
+  .inputscreen p {
+    margin-top: -2%; }
+
+select, button {
+  padding: 4px;
+  font: 18px normal "Ubuntu Condensed", sans-serif; }
+
+/* TIMES */
+.daySpan {
+  float: left;
+  width: 150px;
+  font-size: 90%; }
+
+/* MISC */
+.centering {
+  text-align: center; }
+
+a {
+  color: black; }
+
+.clean-link-to {
+  text-decoration: none;
+  color: black; }
+
+/*# sourceMappingURL=roomsurfer.css.map */
