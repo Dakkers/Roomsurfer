@@ -6,3 +6,5 @@ node_modules
 *.log
 
 README.html
+
+public/js/vendor/ember.js
