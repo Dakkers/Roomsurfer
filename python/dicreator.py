@@ -7,8 +7,8 @@ import json
 
 
 """Constants."""
-FILE = open('raw1145times.txt')
-DICTSFILES = open('1145times.json', 'w')
+FILE = open('raw1151times.txt')
+DICTSFILES = open('1151times.json', 'w')
 ALLSTARTTIMES, ALLENDTIMES, ALLDAYS = [], [], ['M', 'T', 'W', 'Th', 'F']
 
 """Functions for making the lists pretty."""

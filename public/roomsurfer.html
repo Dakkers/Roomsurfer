@@ -1,72 +1,22 @@
 <!doctype html>
-<html>
+<html ng-app="roomsurferApp">
 <head>
   <title>Roomsurfer</title> 
   <meta charset="utf-8">
   <link rel="stylesheet" href="/css/roomsurfer.css">
-  <script type="text/javascript" src="/js/vendor/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+  <script type="text/javascript" src="/bower_components/angular-route/angular-route.min.js"></script>
+  <script type="text/javascript" src="/bower_components/angular-resource/angular-resource.min.js"></script>
+  <script type="text/javascript" src="/js/app.js"></script>
+  <script type="text/javascript" src="/js/services.js"></script>
+  <script type="text/javascript" src="/js/controllers.js"></script>
 </head>
 <body>
-  <script type="text/x-handlebars">
-    <div id="header">
-      {{#link-to 'index'}}<h1>Roomsurfer</h1>{{/link-to}}
-    </div>
+  <div id="header">
+    <a href="#/"><h1>Roomsurfer</h1></a>
+  </div>
 
-    {{outlet}}
-  </script>
-
-  <script type="text/x-handlebars" id="index">
-    <div id="splash">
-      <p>Welcome to Roomsurfer! This page is meant to be used by University of Waterloo students when they are in need of a room to study in. Click "Find times" to find out when a particular room is free, or click "Find rooms" to find out what  rooms are free at a specific time. The current term is Spring 2014 (1145).</p> 
-
-      <p>PLEASE NOTE: These times do not include private bookings, i.e. if the room has been booked by a school club, then it will not appear here. This will only be able to display when a particular room does not have a class in it. Perhaps one day I will be able to handle private bookings.</p>
-      {{#link-to 'times' class='clean-link-to'}}<div class="btn-nav btn-times">Tell me when a specific room is free.</div>{{/link-to}}
-      {{#link-to 'rooms' class='clean-link-to'}}<div class="btn-nav btn-rooms">Tell me all the rooms free at this time.</div>{{/link-to}}
-
-      <p>Like this project? Wanna see the source code? Got an issue? Check out the GitHub repo <a href="https://github.com/StDako/Roomsurfer">here</a>.</p>
-    </div>
-  </script>
-
-  <script type="text/x-handlebars" id='times'>
-    <div id="times" class="inputscreen">
-      {{#link-to 'rooms' class='clean-link-to'}}<div class="btn-nav btn-rooms header">Tell me all the rooms free at this time.</div>{{/link-to}}
-      <h3>Find out when a room is free</h3>
-      <p>Enter a room to check when it's free. You should note that the latest a class can run is 9:50 PM, so if a room is free until then, it will be free afterwards too. To see a full list of all building  abbreviations, click <a href="https://uwaterloo.ca/map/">here</a>.</p>
-      <div class="centering">
-        <p>
-          <select></select>
-          <select></select>
-          <button>Check Times</button>
-        </p>
-      </div><br><br>
-      <p><strong>PHY 150</strong> is available at:</p>
-    </div>
-  </script>
-
-  <script type="text/x-handlebars" id="rooms">
-    <div id="rooms" class="inputscreen">
-      {{#link-to 'times' class='clean-link-to'}}<div class="btn-nav btn-times header">Tell me when a specific room is free.</div>{{/link-to}}
-      <h3>Find out what rooms are available whenever</h3>
-      <p>Select a time interval (start time and end time) to check what rooms are free.</p>
-
-      <div class="centering">
-        <p>
-          <select name="" id=""></select>
-          <select name="" id=""></select>
-          <select name="" id=""></select>
-          <button id="getrooms">Check Rooms</button>
-        </p>
-      </div>
-
-      <p>The following rooms are available from <strong>NOW - LEL</strong> on <strong>POOPDAY</strong>:</p><br>
-
-    </div>
-  </script>
-
-  <script type="text/javascript" src="/js/vendor/handlebars-v1.3.0.js"></script>
-  <script type="text/javascript" src="/js/vendor/ember-1.8.1.min.js"></script>
-  <script type="text/javascript" src="/js/vendor/ember-data.min.js"></script>
-  <script type="text/javascript" src="/js/application.js"></script>
-  <script type="text/javascript" src="/js/router.js"></script>
+  <div ng-view></div>
 </body>
 </html>

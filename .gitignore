@@ -1,6 +1,8 @@
 python/classes.txt
 python/secrets.txt
 
+public/bower_components
+
 node_modules
 *.log
 

@@ -1,0 +1,28 @@
+<div id="times" class="inputscreen">
+  <a href="#/rooms"><div href="#/rooms" class="btn-nav btn-rooms header">Tell me all the rooms free at this time.</div></a>
+  <h3>Find out when a room is free</h3>
+  <p style="margin-top: -2%;">Enter a room to check when it's free. You should note that the latest a class can run is 9:50 PM, so if a room is free until then, it will be free afterwards too. To see a full list of all building  abbreviations, click <a href="https://uwaterloo.ca/map/">here</a>.</p>
+
+  <div class="centering">
+    <select ng-model="b" ng-options="code as code for (code,rooms) in buildings" ng-change="changeCode()"></select>
+    <select ng-model="num" ng-options="num for num in rooms" ng-change="changeNum()"></select>
+    <a ng-href="#/times/{{b}}-{{num}}"><button>Check Times</button></a>
+  </div>
+
+  <div ng-if="searching">
+    <p><strong>{{b}} {{num}}</strong> is available at:</p>
+    <div id="time-info">
+      <span class="daySpan" ng-repeat="el in times">
+        <strong>{{el.day}}</strong><br>
+        <span ng-repeat="time in el.data">
+          {{[convertTo12H(time[0]), convertTo12H(time[1])].join(' - ')}}<br>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div ng-if="invalidInput">
+    <h3>Oh no!</h3>
+    <p>That room isn't in the database! Please try a different room.</p>
+  </div>
+</div>

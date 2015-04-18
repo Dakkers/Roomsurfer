@@ -7,16 +7,16 @@ a lecture, lab, tutorial or whatever. It is not nearly perfect yet - there
 are still some bugs taht need to be fixed. This script is not meant to be 
 used to be found the times of the room, this is just for writing."""
 
-#F = open('raw1141times.txt', 'w')
+F = open('raw1151times.txt', 'w')
 allcoms = ['CLN','DIS','ENS','ESS','FLD','LAB','LEC','ORL','PRA','PRJ','RDG','SEM','STU','TLC','TST','TUT','WRK','WSP']
-allsubs = ['AB', 'ACC', 'ACINTY', 'ACTSC', 'ADMGT', 'AFM', 'AHS', 'AMATH', 'ANTH', 'APPLS', 'ARBUS', 'ARCH', 'ARCHL', 'ARTS', 'ASTRN', 'AVIA', 
-			'BE', 'BET', 'BIOL', 'BUS', 'CEDEV', 'CHE', 'CHEM', 'CHINA', 'CIVE', 'CLAS', 'CM', 'CO', 'COGSCI', 'COMM', 'COMST', 'CONST', 'COOP', 
-			'CROAT', 'CS', 'CT', 'CULT', 'DAC', 'DEI', 'DM', 'DRAMA', 'DUTCH', 'EARTH', 'EASIA', 'ECE', 'ECON', 'EFAS', 'ENBUS', 'ENGL', 'ENVE', 
-			'ENVS', 'ERS', 'ESL', 'EVSY', 'FILM', 'FINE', 'FR', 'GBDA', 'GEMCC' 'GENE', 'GEOE', 'GEOG', 'GER', 'GERON', 'GGOV', 'GLOBAL', 'GRK', 
-			'GS', 'HIST', 'HLTH', 'HRM', 'HSG', 'HUMSC', 'INDEV', 'INTEG', 'INTERN', 'INTST', 'INTTS', 'IS', 'ITAL', 'ITALST', 'JAPAN', 'JS', 
-			'KIN', 'KOREA', 'KPE', 'LAT', 'LED', 'LS', 'MATBUS', 'MATH', 'ME', 'MEDVL', 'MISC', 'MNS', 'MSCI', 'MTE', 'MTHEL', 'MUSIC', 'NANO',
-			'NATST', 'NE', 'OPTOM', 'PACS', 'PD', 'PDPHRM', 'PHARM', 'PHIL', 'PHS', 'PHYS', 'PLAN', 'PMATH', 'POLSH', 'PORT', 'PS', 'PSCI', 
-			'PSYCH', 'QIC', 'REC', 'REES', 'RELC', 'RS', 'RUSS', 'SCBUS', 'SCI', 'SDS', 'SE', 'SEQ', 'SI', 'SMF', 'SOC', 'SOCIN', 'SOCWK', 'SPAN',
+allsubs = ['AB', 'ACC', 'ACINTY', 'ACTSC', 'AFM', 'AHS', 'AMATH', 'ANTH', 'APPLS', 'ARBUS', 'ARCH', 'ARCHL', 'ARTS', 'ASTRN', 'AVIA', 'BASE',
+			'BE', 'BET', 'BIOL', 'BME', 'BUS', 'CEDEV', 'CHE', 'CHEM', 'CHINA', 'CIVE', 'CLAS', 'CM', 'CMW', 'CO', 'COGSCI', 'COMM', 'COMST', 'CONST', 'COOP', 
+			'CRGC', 'CROAT', 'CS', 'CT', 'CULT', 'DAC', 'DEI', 'DRAMA', 'DUTCH', 'EARTH', 'EASIA', 'ECE', 'ECON', 'EFAS', 'ELPE', 'EMLS', 'ENBUS', 'ENGL', 'ENVE', 
+			'ENVS', 'ERS', 'ESL', 'FILM', 'FINE', 'FR', 'GBDA', 'GEMCC' 'GENE', 'GEOE', 'GEOG', 'GER', 'GERON', 'GGOV', 'GLOBAL', 'GRK', 
+			'GS', 'HBIO', 'HIST', 'HLTH', 'HRM', 'HSG', 'HUMSC', 'INDEV', 'INTEG', 'INTERN', 'INTST', 'INTTS', 'IS', 'ITAL', 'ITALST', 'JAPAN', 'JS', 
+			'KIN', 'KOREA', 'KPE', 'LANG', 'LAT', 'LED', 'LS', 'MATBUS', 'MATH', 'ME', 'MEDVL', 'MI', 'MISC', 'MNS', 'MSCI', 'MTE', 'MTHEL', 'MUSIC', 'NANO',
+			'NATST', 'NE', 'NES', 'OPTOM', 'PACS', 'PHARM', 'PHIL', 'PHS', 'PHYS', 'PLAN', 'PMATH', 'PORT', 'PS', 'PSCI', 
+			'PSYCH', 'QIC', 'REC', 'REES', 'RELC', 'RS', 'RSCH', 'RUSS', 'SCBUS', 'SCI', 'SDS', 'SE', 'SEQ', 'SI', 'SMF', 'SOC', 'SOCIN', 'SOCWK', 'SOCWL', 'SPAN',
 			'SPCOM', 'STAT', 'STV', 'SUSM', 'SWK', 'SWREN', 'SYDE', 'TAX', 'TN', 'TOUR', 'TPM', 'TS', 'UN', 'UNIV', 'VCULT', 'WATER', 'WS']
 alldays = ['Th', 'M', 'T', 'W', 'F']
 allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2', 'CGR', 'CIF', 'CLN', 'CLV', 'COG', 'COM', 'CPH', 'CSB', 'DC', 'DWE', 'E2',
@@ -25,21 +25,25 @@ allbuildings = ['AAR', 'ACW', 'AL', 'ARC', 'B1', 'B2', 'BAU', 'BMH', 'BRH', 'C2'
 				'STJ', 'STP', 'TC', 'TH', 'UAE', 'UC', 'UWP', 'V1', 'WSS']
 
 
+term = "1151"
+num = ""
 for sub in allsubs:
-	term = "1141"
-	num = ""
-
 	data = {"sess" : term, "subject" : sub, "cournum" : num}
 	encoded_data = urllib.urlencode(data)
 	content = urllib2.urlopen("http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl",	encoded_data)
 	soup = BeautifulSoup(content.read())
 	stuff = soup.find_all("td", align="center")
-	if 'AL 6' in stuff: print stuff
+	if 'AL 6' in stuff: 
+		print stuff
 	l = [str(i.text).strip() for i in stuff]
+	for fuck in l:
+		if 'DC 3701' in fuck: 
+			print l
+			print '\n\n\n\n'
 
 
 	classnum, numindex = [], []
-	for i in xrange(0, len(l)):
+	for i in xrange(len(l)):
 		a = l[i]
 
 		if len(a) == 4:
@@ -55,7 +59,7 @@ for sub in allsubs:
 				pass
 
 	classes = []
-	for i in range(0,len(numindex)):
+	for i in range(len(numindex)):
 		#splits the class sections
 		try:
 			n1 = numindex[i]
@@ -111,8 +115,7 @@ for sub in allsubs:
 	#reverse time/room to room/time
 	timesrooms = [i[::-1] for i in timesrooms]
 
-	#something kinda weird was going on...
-	#but remove all lists that don't have any building names in them - this happens due to TST sections
+	# remove all lists that don't have any building names in them - this happens due to TST sections
 	i,n = 0,len(timesrooms)
 	while i < n:
 		l = timesrooms[i]
@@ -140,4 +143,4 @@ for sub in allsubs:
 			date = stuff[1][-5:]
 			L = [room, "%s-%s %s %s" %(starttime, endtime, date, days)]
 
-		#F.write(', '.join(L) + "\n")
+		F.write(', '.join(L) + "\n")

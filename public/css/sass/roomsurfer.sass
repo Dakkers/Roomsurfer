@@ -13,7 +13,6 @@ h1
 
 
 /* FANCY BUTTON STUFF */
-
 .btn-nav
   position: relative
   width: 30%
@@ -32,10 +31,11 @@ h1
   :hover
     opacity: 1.0
     cursor: default
+  p
+    margin: 0
 
 .btn-rooms 
   border-left: 50px solid rgb(255,255,255)
-
 .btn-times 
   border-left: 50px solid rgb(0,0,0)
 /* buttons that appear on individual pages - shift them up a bunch */
@@ -46,9 +46,6 @@ h1
 #splash
   margin: auto
   overflow: auto
-  border: 0px solid
-  border-radius: 5px
-
   p 
     margin-top: 0.5%
 
@@ -59,8 +56,6 @@ h1
 
   h3 
     margin-top: 1%
-  p
-    margin-top: -2%
 
 
 select, button
@@ -68,6 +63,8 @@ select, button
   font: 18px normal 'Ubuntu Condensed', sans-serif
 
 /* TIMES */
+#time-info
+  text-align: center
 .daySpan
   float: left
   width: 150px
@@ -78,6 +75,4 @@ select, button
   text-align: center
 a 
   color: black
-.clean-link-to
   text-decoration: none
-  color: black

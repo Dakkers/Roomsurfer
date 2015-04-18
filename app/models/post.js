@@ -2,10 +2,10 @@ var mongoose = require('mongoose');
 
 var postSchema = mongoose.Schema({
 	title: String,
-	content: String,
+	content: Array,
 	topics: Array,
 	date: String,
-	number: String
+	number: Number
 });
 
 module.exports = mongoose.model("blog_posts", postSchema);

@@ -1,0 +1,34 @@
+<div id="rooms" class="inputscreen">
+  <a href="#/times"><div class="btn-nav btn-times header">Tell me when a specific room is free.</div></a>
+  <h3>Find out what rooms are available whenever</h3>
+  <p style="margin-top: -2%;">Select a time interval (start time and end time) to check what rooms are free.</p>
+
+  <div class="centering">
+    <p>
+      <select ng-options="time for time in startTimes" ng-model="startTime" ng-change="changeSelect()"></select>
+      <select ng-options="time for time in endTimes" ng-model="endTime" ng-change="changeSelect()"></select>
+      <select ng-options="day for day in days" ng-model="day" ng-change="changeSelect()"></select>
+      <a href="#/rooms/{{stripTime(startTime)}}-{{stripTime(endTime)}}-{{day}}"><button ng-disabled="disableBtn">Check Rooms</button></a>
+    </p>
+  </div>
+
+  <div ng-if="searching">
+    <p style="margin: 0 0 -1% 0;">The following rooms are available from <strong>{{startTime}} - {{endTime}}</strong> on <strong>{{dayAbbreviations[day]}}</strong>:</p><br>
+
+    <p ng-repeat="(code, nums) in rooms" style="margin-top: 0;">
+      <strong>{{code}}</strong><br>
+      {{nums.join(", ")}}
+    </p>
+  </div>
+
+  <div ng-if="noRooms">
+    <h3>Oh no!</h3>
+    <p style="margin-top: -2%">There are no rooms free at that time. Please try a different time.</p>
+  </div>
+  
+  <div ng-if="invalidInput">
+    <h3>Invalid input!</h3>
+    <p style="margin-top: -2%">Whatever you entered, you entered it in correctly. Please try again.</p>
+  </div>
+
+</div>
