@@ -1,10 +1,7 @@
-python/roomscraper-new.py
-python/exam-reader.py
-python/1145times.json
+python/classes.txt
+python/secrets.txt
 
 node_modules
 *.log
 
 README.html
-
-public/js/vendor/ember.js
