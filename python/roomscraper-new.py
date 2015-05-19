@@ -8,49 +8,8 @@ SECRETS = open('secrets.txt')
 key = SECRETS.readlines()[0]
 SECRETS.close()
 
-
-# THIS IS PROBABLY NOT NEEDED
-def get_classes(sub):
-    """
-    Given a subject name, writes all of the courses offered in that subject for
-    the term to a file.
-
-    Parameters
-    ----------
-    sub : string
-        A subject, like PHYS or AMATH.
-
-    Returns
-    -------
-    classes : list
-        A list of strings representing the class numbers. (Strings are used
-        because some class numbers have letters in them too...)
-    """
-    classes = []
-
-    # get the webpage...
-    data = {"sess": "1155", "subject": sub, "cournum": ""}
-    data_encoded = urllib.urlencode(data)
-    content = urllib2.urlopen("http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl", data_encoded)
-    soup = BeautifulSoup(content.read())
-    table = soup.find('table')
-
-    if table is not None:
-        # loop through each block of information
-        rows = table.find_all('tr', recursive=False)
-        for i in xrange(len(rows)):
-            row = rows[i]
-            cells = row.find_all('td')
-            if len(cells) > 1 and sub in cells[0].text:
-                num = cells[1].text
-
-                # ignore labs...
-                if num[-1] == 'L':
-                    continue
-
-                classes.append(num)
-
-    return classes
+# the current term number
+TERM = 1155
 
 
 def get_subjects():
@@ -80,10 +39,35 @@ def get_subjects():
     return subs_to_keep
 
 
-def get_times(d):
-    # d is currently a dictionary, but it will later just be the course
-    # sub/num
-    raw_data = {}
+def get_times(d, raw_data, subject):
+    """
+    Given a dict of already-existing (or empty) data and a subject, the
+    uWaterloo API is used to get all of the classes offered in the current
+    term. Then, the classes are iterated over, getting the building name and
+    room number, and adding the time that the space is used at to the data.
+
+    Mutates an existing data set.
+
+    Parameters
+    ----------
+    raw_data : dict
+        Data already collected thus far, or empty. Formatted like so:
+            
+            {'PHY':
+                '145': {
+                    'M': [[510,570], [690,740]]
+                }
+            }
+
+        i.e. BUILDING -> ROOM -> DAY -> LIST OF TIMES
+    subject : str
+        The subject name, in its short-form (e.g. 'PHY').
+    """
+
+    # subject_info = urllib2.urlopen(
+    #                 'https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key=%s' % (TERM, subject, key)
+    #                )
+    # d = json.loads(subject_info.read())
 
     for section in d['data']:
         for c in section['classes']:
@@ -103,17 +87,6 @@ def get_times(d):
                     time  = [start, end]
                     for day in days:
                         add_time(raw_data, building, room, day, time)
-
-    return raw_data
-
-
-def sort_and_merge_times(data):
-    for building in data:
-        for room in data[building]:
-            for day in data[building][room]:
-                data[building][room][day].sort(cmp=lambda t1, t2: t1[0]-t2[0])
-                merge_times(data[building][room][day])
-    return data
 
 
 def merge_times(times):
@@ -176,6 +149,26 @@ def convert_clock_to_minutes(clock_time):
 
 
 def add_time(d, building, room, day, time):
+    """
+    Add a (free or used) time to a data set. The nested values are created as
+    needed (so if a building does not yet exist in the data set, it is
+    initialized, then the room, etc.).
+
+    Mutates an existing data set.
+
+    Parameters
+    ----------
+    d : dict
+        The data set to add to.
+    building : str
+        The building's short-form code (e.g. 'PHY').
+    room : str
+        The room number, as a string (e.g. '145').
+    day : str
+        The day's short-form code (e.g. 'M').
+    time : list
+        The beginning and end time, as a list (e.g. [750, 800]).
+    """
     if building not in d:
         d[building] = {}
     if room not in d[building]:
@@ -186,11 +179,88 @@ def add_time(d, building, room, day, time):
         d[building][room][day].append(time)
 
 
+def get_free_times(used_times):
+    """
+    Given a list of used times (pairs of start and end times), the
+    corresponding free times are generated.
+
+    Parameters
+    ----------
+    used_times : list
+        A list of lists, where each nested list is a pair of integers that
+        represent the start time and end time of when the class is used.
+
+    Returns
+    -------
+    list
+        A list of lists, similar to the input, but the pairs represent when the
+        class is free.
+    """
+    free_times = []
+    free_start, free_end = 0, 1439     # beginning, end of day
+
+    for used_time in used_times:
+        # 'free period' ends when the class starts
+        free_end = used_time[0]
+        free_times.append([free_start, free_end])
+
+        # next 'free period' starts when the class ends
+        free_start = used_time[1]
+
+    # last class' end time to end of day
+    free_times.append([free_start, 1439])
+
+    return free_times
+
+
+def get_all_free_times(used):
+    """
+    Given the data representing the times that rooms are booked at, the
+    corresponding times that the rooms are free at is generated.
+
+    Parameters
+    ----------
+    used : dict
+        Data for all times that rooms are booked at.
+
+    Returns
+    -------
+    dict
+        Data for all times that rooms are free at.
+    """
+    free = {}
+    days = ['M', 'T', 'W', 'Th', 'F']
+
+    for building in used:
+        for room in used[building]:
+            for day in days:
+                # if the room is used on this day, get its times, sort them,
+                # merge them, get the corresponding free times and add them to
+                # the free data
+                if day in used[building][room]:
+                    used[building][room][day].sort(cmp=lambda t1, t2: t1[0]-t2[0])
+                    merge_times(used[building][room][day])
+                    add_time(free, building, room, day,
+                             get_free_times(used[building][room][day]))
+
+                # otherwise, it's not in use on this day, i.e. it's free all
+                # day; then, add it to the free data
+                else:
+                    # passing an empty list to get_free_times will result in
+                    # a pair of times representing the entire day
+                    add_time(free, building, room, day, get_free_times([]))
+
+    return free
+
+
 # temporary
 example = open('./example.json')
 data = json.loads(example.read())
 
-print sort_and_merge_times(get_times(data))
+times = {}
+
+get_times(data, times, 'PHYS')
+print get_all_free_times(times)
 
 
 # result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=%s' % key)
