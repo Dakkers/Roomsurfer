@@ -100,11 +100,34 @@ def get_times(d):
                     start = convert_clock_to_minutes(c['date']['start_time'])
                     end   = convert_clock_to_minutes(c['date']['end_time'])
                     days  = get_days(c['date']['weekdays'])
-                    time  = (start, end)
+                    time  = [start, end]
                     for day in days:
                         add_time(raw_data, building, room, day, time)
 
     return raw_data
+
+
+def sort_and_merge_times(data):
+    for building in data:
+        for room in data[building]:
+            for day in data[building][room]:
+                data[building][room][day].sort(cmp=lambda t1, t2: t1[0]-t2[0])
+                merge_times(data[building][room][day])
+    return data
+
+
+def merge_times(times):
+    # act on the list itself
+    i, N = 0, len(times) - 1
+    while i < N:
+        start_curr, end_curr = times[i]
+        start_next, end_next = times[i+1]
+        if start_next - 10 <= end_curr:
+            times[i][1] = end_next
+            times.pop(i+1)
+            N -= 1
+        else:
+            i += 1
 
 
 def get_days(s):
@@ -159,16 +182,16 @@ def add_time(d, building, room, day, time):
         d[building][room] = {}
     if day not in d[building][room]:
         d[building][room][day] = []
-
-    d[building][room][day].append(time)
+    if time not in d[building][room][day]:
+        d[building][room][day].append(time)
 
 
 # temporary
 example = open('./example.json')
 data = json.loads(example.read())
 
-print get_times(data)
+print sort_and_merge_times(get_times(data))
 
 
-# result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=3528052876f446032fde35b4a751ec5c')
+# result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=%s' % key)
 # print result.read()
