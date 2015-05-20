@@ -287,27 +287,48 @@ def store_raw_data():
         f.close()
 
 
-def get_free_rooms():
-    pass
-
-
 def dump_to_sql(free, connected):
     if not connected:
         return
 
+    days = ['M', 'T', 'W', 'Th', 'F']
+
+    if cur.execute("SHOW TABLES LIKE 'FreeRooms'"):
+        cur.execute("DROP TABLE FreeRooms")
+    cur.execute( ("CREATE TABLE FreeRooms ("
+                   "building VARCHAR(4),"
+                   "room     VARCHAR(6),"
+                   "day      VARCHAR(2),"
+                   "start    SMALLINT,"
+                   "end      SMALLINT )"
+                  ) )
+
     for building in free:
         for room in free[building]:
-            pass
+            for day in days:
+                times = free[building][room][day]
+                print times
+                for time in times[0]:
+                    print time
+                    cur.execute( ("INSERT INTO FreeRooms (building, room, day, start,"
+                                  "end) VALUES ('%s', '%s', '%s', '%d', '%d')" % (
+                                  building, room, day, time[0], time[1]) ) )
 
+    roomsurfer.commit()
 
 
 # temporary
 example = open('./example.json')
 data = json.loads(example.read())
 
-times = {}
-get_times(data, times, 'PHYS')
+used = {}
+get_times(data, used, 'PHYS')
 
+free = get_all_free_times(used)
+print free
+dump_to_sql(free, CONNECTED)
+
+roomsurfer.close()
 
 # result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=%s' % key)
 # print result.read()
