@@ -1,5 +1,7 @@
 python/classes.txt
 python/secrets.txt
+python/raw_data
+python/example.json
 
 public/bower_components
 
@@ -7,5 +9,3 @@ node_modules
 *.log
 
 README.html
-
-python/example.json

@@ -1,12 +1,26 @@
 import urllib
 import urllib2
 import json
+import os
+import MySQLdb
 from bs4 import BeautifulSoup
+
 
 # get API key
 SECRETS = open('secrets.txt')
-key = SECRETS.readlines()[0]
+key  = SECRETS.readline().strip()
+user = SECRETS.readline().strip()
+pw   = SECRETS.readline().strip()
 SECRETS.close()
+
+# SQL setup
+CONNECTED = False
+try:
+    roomsurfer = MySQLdb.connect(host="localhost", user=user, passwd=pw, db="Roomsurfer")
+    cur = roomsurfer.cursor()
+    CONNECTED = True
+except:
+    print 'Failed to connect to database "Roomsurfer".'
 
 # the current term number
 TERM = 1155
@@ -253,14 +267,46 @@ def get_all_free_times(used):
     return free
 
 
+def store_raw_data():
+    """
+    All 'raw data' (i.e. UW API return data) for each subject is written to a
+    file in a folder (one file per subject).
+    """
+    subs = get_subjects()
+
+    if not os.path.isdir('./raw_data'):
+        os.mkdir('./raw_data')
+
+    for sub in subs:
+        subject_info = urllib2.urlopen(
+                        'https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key=%s' % (TERM, sub, key)
+                       )
+
+        f = open('./raw_data/%s.txt' % sub, 'w')
+        f.write(subject_info.read())
+        f.close()
+
+
+def get_free_rooms():
+    pass
+
+
+def dump_to_sql(free, connected):
+    if not connected:
+        return
+
+    for building in free:
+        for room in free[building]:
+            pass
+
+
+
 # temporary
 example = open('./example.json')
 data = json.loads(example.read())
 
 times = {}
-
 get_times(data, times, 'PHYS')
-print get_all_free_times(times)
 
 
 # result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=%s' % key)
