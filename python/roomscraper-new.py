@@ -6,26 +6,6 @@ import MySQLdb
 from bs4 import BeautifulSoup
 
 
-# get API key
-SECRETS = open('secrets.txt')
-key  = SECRETS.readline().strip()
-user = SECRETS.readline().strip()
-pw   = SECRETS.readline().strip()
-SECRETS.close()
-
-# SQL setup
-CONNECTED = False
-try:
-    roomsurfer = MySQLdb.connect(host="localhost", user=user, passwd=pw, db="Roomsurfer")
-    cur = roomsurfer.cursor()
-    CONNECTED = True
-except:
-    print 'Failed to connect to database "Roomsurfer".'
-
-# the current term number
-TERM = 1155
-
-
 def get_subjects():
     """
     Creates a list of subjects, ignoring some we don't care about.
@@ -53,7 +33,7 @@ def get_subjects():
     return subs_to_keep
 
 
-def get_times(d, raw_data, subject):
+def get_times(local_data=True):
     """
     Given a dict of already-existing (or empty) data and a subject, the
     uWaterloo API is used to get all of the classes offered in the current
@@ -78,29 +58,44 @@ def get_times(d, raw_data, subject):
         The subject name, in its short-form (e.g. 'PHY').
     """
 
-    # subject_info = urllib2.urlopen(
-    #                 'https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key=%s' % (TERM, subject, key)
-    #                )
-    # d = json.loads(subject_info.read())
+    raw_data = {}
+    if local_data:
+        subs = [sub.replace('.txt', '') for sub in os.listdir('./raw_data')]
+    else:
+        subs = get_subjects()
 
-    for section in d['data']:
-        for c in section['classes']:
-            is_cancelled = c['date']['is_cancelled']
-            is_tba       = c['date']['is_tba']
+    for sub in subs:
+        if local_data:
+            f = open('./raw_data/%s.txt' % sub)
+            d = json.loads(f.read())
+            f.close()
+        else:
+            subject_info = urllib2.urlopen(
+                            ('https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key'
+                             '=%s' % (TERM, sub, key) )
+                           )
+            d = json.loads(subject_info.read())
 
-            # ignore classes that were cancelled, or are TBA
-            if not is_cancelled and not is_tba:
-                building = c['location']['building']
-                room = c['location']['room']
+        for section in d['data']:
+            for c in section['classes']:
+                is_cancelled = c['date']['is_cancelled']
+                is_tba       = c['date']['is_tba']
 
-                # ignore classes that don't have an assigned building/room
-                if building is not None and room is not None:
-                    start = convert_clock_to_minutes(c['date']['start_time'])
-                    end   = convert_clock_to_minutes(c['date']['end_time'])
-                    days  = get_days(c['date']['weekdays'])
-                    time  = [start, end]
-                    for day in days:
-                        add_time(raw_data, building, room, day, time)
+                # ignore classes that were cancelled, or are TBA
+                if not is_cancelled and not is_tba:
+                    building = c['location']['building']
+                    room = c['location']['room']
+
+                    # ignore classes that don't have an assigned building/room
+                    if building is not None and room is not None:
+                        start = convert_clock_to_minutes(c['date']['start_time'])
+                        end   = convert_clock_to_minutes(c['date']['end_time'])
+                        days  = get_days(c['date']['weekdays'])
+                        time  = [start, end]
+                        for day in days:
+                            add_time(raw_data, building, room, day, time)
+
+    return raw_data
 
 
 def merge_times(times):
@@ -295,6 +290,7 @@ def dump_to_sql(free, connected):
 
     if cur.execute("SHOW TABLES LIKE 'FreeRooms'"):
         cur.execute("DROP TABLE FreeRooms")
+    
     cur.execute( ("CREATE TABLE FreeRooms ("
                    "building VARCHAR(4),"
                    "room     VARCHAR(6),"
@@ -307,9 +303,7 @@ def dump_to_sql(free, connected):
         for room in free[building]:
             for day in days:
                 times = free[building][room][day]
-                print times
                 for time in times[0]:
-                    print time
                     cur.execute( ("INSERT INTO FreeRooms (building, room, day, start,"
                                   "end) VALUES ('%s', '%s', '%s', '%d', '%d')" % (
                                   building, room, day, time[0], time[1]) ) )
@@ -317,18 +311,29 @@ def dump_to_sql(free, connected):
     roomsurfer.commit()
 
 
-# temporary
-example = open('./example.json')
-data = json.loads(example.read())
+if __name__ == '__main__':
+    # get API key
+    SECRETS = open('secrets.txt')
+    key  = SECRETS.readline().strip()
+    user = SECRETS.readline().strip()
+    pw   = SECRETS.readline().strip()
+    SECRETS.close()
 
-used = {}
-get_times(data, used, 'PHYS')
+    # SQL setup
+    CONNECTED = False
+    try:
+        roomsurfer = MySQLdb.connect(host="localhost", user=user, passwd=pw, db="Roomsurfer")
+        cur = roomsurfer.cursor()
+        CONNECTED = True
+    except:
+        print 'Failed to connect to database "Roomsurfer".'
 
-free = get_all_free_times(used)
-print free
-dump_to_sql(free, CONNECTED)
+    # the current term number
+    TERM = 1155
 
-roomsurfer.close()
+    # do the thing
+    used = get_times()
+    free = get_all_free_times(used)
+    dump_to_sql(free, CONNECTED)
 
-# result = urllib2.urlopen('https://api.uwaterloo.ca/v2/terms/1155/MATH/schedule.json?key=%s' % key)
-# print result.read()
+    roomsurfer.close()
