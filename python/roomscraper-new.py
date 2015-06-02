@@ -35,17 +35,23 @@ def get_subjects():
 
 def get_times(local_data=True):
     """
-    Given a dict of already-existing (or empty) data and a subject, the
-    uWaterloo API is used to get all of the classes offered in the current
-    term. Then, the classes are iterated over, getting the building name and
-    room number, and adding the time that the space is used at to the data.
+    Gets all of the times for all of the rooms on campus this term, using
+    either locally stored data or API calls, depending on the value of
+    local_data.
 
-    Mutates an existing data set.
 
     Parameters
     ----------
-    raw_data : dict
-        Data already collected thus far, or empty. Formatted like so:
+    local_data : bool (optional)
+        If True, the data must be stored locally in a folder called raw_data,
+        and each subject's info must be in a text file, e.g. SUBJECT.txt where
+        SUBJECT is the short-form code of the subject. If False, API calls are
+        made instead.
+
+    Returns
+    -------
+    dict
+        All times for all subjects. Formatted like so:
             
             {'PHY':
                 '145': {
@@ -54,8 +60,6 @@ def get_times(local_data=True):
             }
 
         i.e. BUILDING -> ROOM -> DAY -> LIST OF TIMES
-    subject : str
-        The subject name, in its short-form (e.g. 'PHY').
     """
 
     raw_data = {}
