@@ -92,17 +92,23 @@ roomsurferControllers.controller('timesCtrl', ['$scope', '$routeParams', 'Buildi
         $scope.getTimes = function(building, num) {
             // get the free times for the selected room
             // this function is called both via button click and via direct URL
-            Times.get({roomId: [building, num].join("-")}, function(data) {
-                if (!data.hasOwnProperty('info')) {
+            Times.query({building: "PHY", room: "145"}, function(data) {
+                if (data.hasOwnProperty('invalid')) {
                     // user accesses Roomsurfer with faulty input (via URL directly)
                     $scope.invalidInput = true;
                 } else {
-                    data = data.info;
+                    // this is awful because I didn't really want to put up with
+                    // Angular's bologna anymore... should prolly switch...
+                    dataCleaned = {M: [], T: [], W: [], Th: [], F: []};
+                    for (var i=0, o; i<data.length; i++) {
+                        o = data[i];  // o!
+                        dataCleaned[o.day].push([o.starttime, o.endtime]);
+                    }
                     $scope.b = building;
                     $scope.rooms = $scope.buildings[building];
                     $scope.num = num;
-                    $scope.times = [{day:'Monday',data:data.M}, {day:'Tuesday',data:data.T}, {day:'Wednesday',data:data.W}, 
-                                    {day:'Thursday',data:data.Th}, {day:'Friday',data:data.F}];
+                    $scope.times = [{day:'Monday',data:dataCleaned.M}, {day:'Tuesday',data:dataCleaned.T}, {day:'Wednesday',data:dataCleaned.W}, 
+                                    {day:'Thursday',data:dataCleaned.Th}, {day:'Friday',data:dataCleaned.F}];
                     $scope.searching = true;
                     $scope.invalidInput = false;
                 }
@@ -117,10 +123,13 @@ roomsurferControllers.controller('timesCtrl', ['$scope', '$routeParams', 'Buildi
             // called when any route is accessed; populates building select
             $scope.buildings = {};
             data.forEach(function(o) {
-                $scope.buildings[o.building] = o.rooms;
+                if ($scope.buildings.hasOwnProperty(o.building))
+                    $scope.buildings[o.building].push(o.room);
+                else
+                    $scope.buildings[o.building] = [o.room];
             });
             $scope.b = data[0].building;
-            $scope.rooms = data[0].rooms;
+            $scope.rooms = $scope.buildings[$scope.b];
             $scope.num = $scope.rooms[0];
         });
 
@@ -151,20 +160,19 @@ roomsurferControllers.controller('roomsCtrl', ['$scope', '$routeParams', 'Rooms'
                 return;
             }
 
-            Rooms.get({timeId: [start, end, day].join('-')}, function(data) {
-                if (!data.hasOwnProperty('info')) {
+            Rooms.query({start: start, end: end, day: day}, function(data) {
+                console.log(start, end, day);
+                if (data.hasOwnProperty('invalid')) {
                     $scope.noRooms = true;
                 } else {
-                    data = data.info;
-                    data.forEach(function(el) {
-                        el = el.split(" ");
-                        var b = el[0],
-                            n = el[1];
-                        if ($scope.rooms.hasOwnProperty(b))
-                            $scope.rooms[b].push(n);
+                    console.log(data);
+                    for (var i=0, o; i<data.length; i++) {
+                        o = data[i]; // o!
+                        if ($scope.rooms.hasOwnProperty(o.building))
+                            $scope.rooms[o.building].push(o.room);
                         else
-                            $scope.rooms[b] = [n];
-                    });
+                            $scope.rooms[o.building] = [o.room];
+                    }
                     $scope.searching = true;
                 }
                 $scope.startTime = convertTo12H(start);

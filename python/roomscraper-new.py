@@ -2,7 +2,7 @@ import urllib
 import urllib2
 import json
 import os
-import MySQLdb
+import psycopg2
 from bs4 import BeautifulSoup
 
 
@@ -33,7 +33,7 @@ def get_subjects():
     return subs_to_keep
 
 
-def get_times(local_data=True):
+def get_times(term, key, local_data=True):
     """
     Gets all of the times for all of the rooms on campus this term, using
     either locally stored data or API calls, depending on the value of
@@ -64,19 +64,20 @@ def get_times(local_data=True):
 
     raw_data = {}
     if local_data:
-        subs = [sub.replace('.txt', '') for sub in os.listdir('./raw_data')]
+        subs = [sub.replace('.txt', '') for sub in os.listdir('./raw_data/%d' % term)]
     else:
         subs = get_subjects()
 
     for sub in subs:
+        print sub
         if local_data:
-            f = open('./raw_data/%s.txt' % sub)
+            f = open('./raw_data/%d/%s.txt' % (term, sub))
             d = json.loads(f.read())
             f.close()
         else:
             subject_info = urllib2.urlopen(
                             ('https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key'
-                             '=%s' % (TERM, sub, key) )
+                             '=%s' % (term, sub, key) )
                            )
             d = json.loads(subject_info.read())
 
@@ -266,7 +267,7 @@ def get_all_free_times(used):
     return free
 
 
-def store_raw_data():
+def store_raw_data(term, key):
     """
     All 'raw data' (i.e. UW API return data) for each subject is written to a
     file in a folder (one file per subject).
@@ -275,32 +276,36 @@ def store_raw_data():
 
     if not os.path.isdir('./raw_data'):
         os.mkdir('./raw_data')
+        os.mkdir('./raw_data/%d' % term)
+    elif not os.path.isdir('./raw_data/%d' % term):
+        os.mkdir('./raw_data/%d' % term)
 
     for sub in subs:
         subject_info = urllib2.urlopen(
-                        'https://api.uwaterloo.ca/v2/terms/%s/%s/schedule.json?key=%s' % (TERM, sub, key)
+                        'https://api.uwaterloo.ca/v2/terms/%d/%s/schedule.json?key=%s' % (term, sub, key)
                        )
 
-        f = open('./raw_data/%s.txt' % sub, 'w')
+        print sub
+        f = open('./raw_data/%d/%s.txt' % (term, sub), 'w')
         f.write(subject_info.read())
         f.close()
 
 
-def dump_to_sql(free, connected):
+def dump_to_sql(free, cur, connected):
     if not connected:
         return
 
     days = ['M', 'T', 'W', 'Th', 'F']
 
-    if cur.execute("SHOW TABLES LIKE 'FreeRooms'"):
-        cur.execute("DROP TABLE FreeRooms")
+    print "Dropping the 'FreeRooms' table if it already exists."
+    cur.execute("DROP TABLE IF EXISTS FreeRooms;")
     
     cur.execute( ("CREATE TABLE FreeRooms ("
                    "building VARCHAR(4),"
                    "room     VARCHAR(6),"
                    "day      VARCHAR(2),"
-                   "start    SMALLINT,"
-                   "end      SMALLINT )"
+                   "starttime    SMALLINT,"
+                   "endtime      SMALLINT )"
                   ) )
 
     for building in free:
@@ -308,8 +313,8 @@ def dump_to_sql(free, connected):
             for day in days:
                 times = free[building][room][day]
                 for time in times[0]:
-                    cur.execute( ("INSERT INTO FreeRooms (building, room, day, start,"
-                                  "end) VALUES ('%s', '%s', '%s', '%d', '%d')" % (
+                    cur.execute( ("INSERT INTO FreeRooms (building, room, day, starttime,"
+                                  "endtime) VALUES ('%s', '%s', '%s', '%d', '%d')" % (
                                   building, room, day, time[0], time[1]) ) )
 
     roomsurfer.commit()
@@ -326,18 +331,24 @@ if __name__ == '__main__':
     # SQL setup
     CONNECTED = False
     try:
-        roomsurfer = MySQLdb.connect(host="localhost", user=user, passwd=pw, db="Roomsurfer")
+        # roomsurfer = MySQLdb.connect(host="localhost", user=user, passwd=pw, db="Roomsurfer")
+        roomsurfer = psycopg2.connect(host="localhost", user=user, password=pw, database="Roomsurfer")
         cur = roomsurfer.cursor()
         CONNECTED = True
     except:
         print 'Failed to connect to database "Roomsurfer".'
 
+
     # the current term number
-    TERM = 1155
+    TERM = 1159
+
+    # get data and store it locally
+    # store_raw_data(TERM, key)
 
     # do the thing
-    used = get_times()
+    used = get_times(TERM, key, local_data=True)
     free = get_all_free_times(used)
-    dump_to_sql(free, CONNECTED)
+    dump_to_sql(free, cur, CONNECTED)
 
+    cur.close()
     roomsurfer.close()

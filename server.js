@@ -2,23 +2,22 @@ var express = require('express'),
     app = express(),
     path = require('path'),
     bodyParser = require('body-parser'),
-    mongoose   = require('mongoose'),
-    mysql      = require('mysql'),
+    pg         = require('pg'),
     secrets    = require('./secrets');
 
-var conn = mysql.createConnection({
-    host     : secrets.sqlHost,
-    user     : secrets.sqlUser,
-    password : secrets.sqlPassword,
-    database : "Roomsurfer"
-});
+var conString = secrets.conString;
+var client = new pg.Client(conString);
+client.connect()
 
-conn.connect();
+// var conn = mysql.createConnection({
+//     host     : secrets.sqlHost,
+//     user     : secrets.sqlUser,
+//     password : secrets.sqlPassword,
+//     database : "Roomsurfer"
+// });
 
-var Room = require('./app/models/room'),
-    Time = require('./app/models/time'),
-    Building = require('./app/models/building');
-// mongoose.connect('mongodb://localhost/stdako');
+// conn.connect();
+
 
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,10 +31,10 @@ roomsurferRouter.route('/')
 
 roomsurferRouter.route("/api/usedrooms")
     .get(function(req, res) {
-        conn.query(
+        client.query(
             "SELECT DISTINCT building, room FROM FreeRooms ORDER BY building, room",
-            function(err, rows) { 
-                res.json(rows);
+            function(err, result) { 
+                res.json(result.rows);
             }
         );
 
@@ -52,10 +51,10 @@ roomsurferRouter.route("/api/usedrooms")
 roomsurferRouter.route("/api/usedrooms/:building")
     .get(function(req, res) {
         var building = req.params.building.toUpperCase();
-        conn.query(
-            "SELECT DISTINCT room FROM FreeRooms WHERE building = ? ORDER BY room",
-            [building], function(err, rows) {
-                res.json(rows);
+        client.query(
+            "SELECT DISTINCT room FROM FreeRooms WHERE building = ($1) ORDER BY room",
+            [building], function(err, result) {
+                res.json(result.rows);
             }
         );
 
@@ -72,10 +71,13 @@ roomsurferRouter.route("/api/usedrooms/:building")
 roomsurferRouter.route('/api/room/:building/')
     .get(function(req, res) {
         var building = req.params.building.toUpperCase();
-        conn.query(
-            "SELECT room, day, start, end FROM FreeRooms WHERE building = ? ORDER BY room",
-            [building], function(err, rows) {
-                res.json(rows);
+        client.query(
+            "SELECT room, day, starttime, endtime FROM FreeRooms WHERE building = ($1) ORDER BY room",
+            [building], function(err, result) {
+                if (result.rows.length === 0)
+                    res.json({"invalid": 1})
+                else
+                    res.json(result.rows);
             }
         );
     });
@@ -84,10 +86,13 @@ roomsurferRouter.route('/api/room/:building/:room')
     .get(function(req, res) {
         var building = req.params.building.toUpperCase(),
             room     = req.params.room;
-        conn.query(
-            "SELECT day, start, end FROM FreeRooms WHERE building = ? and room = ?",
-            [building, room], function(err, rows) {
-                res.json(rows);
+        client.query(
+            "SELECT day, starttime, endtime FROM FreeRooms WHERE building = ($1) and room = ($2)",
+            [building, room], function(err, result) {
+                if (result.rows.length === 0)
+                    res.json({"invalid": 1})
+                else
+                    res.json(result.rows);
             }
         );
 
@@ -118,10 +123,11 @@ roomsurferRouter.route('/api/time/:day/:start?/:end?')
         if (!end)
             end = 1439;
 
-        conn.query(
-            "SELECT building, room FROM FreeRooms WHERE day = ? and start = ? and end = ?",
-            [day, start, end], function(err, rows) {
-                res.json(rows);
+        client.query(
+            "SELECT building, room FROM FreeRooms WHERE day = ($1) and starttime <= ($2) and endtime >= ($3)",
+            [day, start, end], function(err, result) {
+                console.log(day, start, end);
+                res.json(result.rows);
             }
         )
         /*
