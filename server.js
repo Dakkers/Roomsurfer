@@ -9,16 +9,6 @@ var conString = secrets.conString;
 var client = new pg.Client(conString);
 client.connect()
 
-// var conn = mysql.createConnection({
-//     host     : secrets.sqlHost,
-//     user     : secrets.sqlUser,
-//     password : secrets.sqlPassword,
-//     database : "Roomsurfer"
-// });
-
-// conn.connect();
-
-
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
 roomsurferRouter = express.Router({mergeParams: true});
@@ -37,15 +27,6 @@ roomsurferRouter.route("/api/usedrooms")
                 res.json(result.rows);
             }
         );
-
-        /*
-        Building.find({})
-        .select({_id: 0})
-        .lean()
-        .exec(function(err, data) {
-            res.json(data);
-        });
-        */
     });
 
 roomsurferRouter.route("/api/usedrooms/:building")
@@ -57,15 +38,6 @@ roomsurferRouter.route("/api/usedrooms/:building")
                 res.json(result.rows);
             }
         );
-
-        /*
-        Building.findOne({building: req.params.building.toUpperCase()})
-        .select({_id: 0})
-        .lean()
-        .exec(function(err, data) {
-            res.json(data);
-        });
-        */
     });
 
 roomsurferRouter.route('/api/room/:building/')
@@ -95,18 +67,6 @@ roomsurferRouter.route('/api/room/:building/:room')
                     res.json(result.rows);
             }
         );
-
-        /*
-        Room.findOne({room: req.params.room.replace("-"," ").toUpperCase()})
-        .select({_id: 0})
-        .lean()
-        .exec(function(err, data) {
-            // TODO
-            // if (format === true)
-            //    format time from minutes to 12-hour clock.
-            res.json(data);
-        });
-        */
     });
 
 roomsurferRouter.route('/api/time/:day/:start?/:end?')
@@ -114,9 +74,11 @@ roomsurferRouter.route('/api/time/:day/:start?/:end?')
         // TODO
         // if (format === true)
         //    format time from minutes to 12-hour clock
-        var day   = req.params.day.toUpperCase(),
+        var day   = req.params.day,
             start = parseInt(req.params.start),
             end   = parseInt(req.params.end);
+
+        day = day.charAt(0).toUpperCase() + day.slice(1);
 
         if (!start)
             start = 0;
@@ -129,16 +91,7 @@ roomsurferRouter.route('/api/time/:day/:start?/:end?')
                 console.log(day, start, end);
                 res.json(result.rows);
             }
-        )
-        /*
-        Time.findOne({time: req.params.time.replace(/-/g,",")})
-        .select({_id: 0})
-        .lean()
-        .exec(function(err, data) {
-            console.log(req.params.time.replace(/-/g,","));
-            res.json(data);
-        });
-        */
+        );
     });
 
 app.listen(4000);
