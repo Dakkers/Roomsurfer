@@ -72,8 +72,37 @@ Example output (http://saintdako.com/roomsurfer/api/time/M):
     ...
 ```
 
+## Getting the Data Yourself
+If you want to store the data on your own machine instead of using the API, use the `python/roomscraper.py` script. Make sure to create a database called `Roomsurfer`.
+
+Inside this directory, create a `secrets.txt` file with the following content:
+
+```
+YOUR_UW_API_KEY
+YOUR_POSTGRES_USERNAME
+YOUR_POSTGRES_PASSWORD
+```
+
+If you want to store the raw JSON data, uncomment `store_raw_data(TERM, key)`. Then you can run the script, specifying the term number using  the `TERM` variable. If you did not uncomment `store_raw_data`, then you will have to change
+
+```
+used = get_times(TERM, key, local_data=True)
+```
+
+to
+
+```
+used = get_times(TERM, key, local_data=False)
+```
+
+The table name is `FreeRooms` and you can check `server.js` for how to query it.
+
 ## Version History
-### 1.2.1 (current)
+### 1.3.0
+- added tests for validating API response data
+- `server.js` now exports the Express application (used in tests)
+
+### 1.2.1
 - fixed a bug that prevented Thursday times from appearing
 
 ### 1.2.0

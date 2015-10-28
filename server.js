@@ -5,9 +5,8 @@ var express = require('express'),
     pg         = require('pg'),
     secrets    = require('./secrets');
 
-var conString = secrets.conString;
-var client = new pg.Client(conString);
-client.connect()
+var client = new pg.Client(secrets.conString);
+client.connect();
 
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -46,10 +45,7 @@ roomsurferRouter.route('/api/room/:building/')
         client.query(
             "SELECT room, day, starttime, endtime FROM FreeRooms WHERE building = ($1) ORDER BY room",
             [building], function(err, result) {
-                if (result.rows.length === 0)
-                    res.json({"invalid": 1})
-                else
-                    res.json(result.rows);
+                res.json(result.rows);
             }
         );
     });
@@ -61,34 +57,29 @@ roomsurferRouter.route('/api/room/:building/:room')
         client.query(
             "SELECT day, starttime, endtime FROM FreeRooms WHERE building = ($1) and room = ($2)",
             [building, room], function(err, result) {
-                if (result.rows.length === 0)
-                    res.json({"invalid": 1})
-                else
-                    res.json(result.rows);
+                res.json(result.rows);
             }
         );
     });
 
 roomsurferRouter.route('/api/time/:day/:start?/:end?')
     .get(function(req, res) {
-        // TODO
-        // if (format === true)
-        //    format time from minutes to 12-hour clock
         var day   = req.params.day,
             start = parseInt(req.params.start),
             end   = parseInt(req.params.end);
 
         day = day.charAt(0).toUpperCase() + day.slice(1);
 
-        if (!start)
+        if (!start) {
             start = 0;
-        if (!end)
+        }
+        if (!end) {
             end = 1439;
+        }
 
         client.query(
             "SELECT building, room FROM FreeRooms WHERE day = ($1) and starttime <= ($2) and endtime >= ($3)",
             [day, start, end], function(err, result) {
-                console.log(day, start, end);
                 res.json(result.rows);
             }
         );
@@ -96,3 +87,5 @@ roomsurferRouter.route('/api/time/:day/:start?/:end?')
 
 app.listen(4000);
 console.log('Roomsurfer started on 4000...');
+
+module.exports = app;
