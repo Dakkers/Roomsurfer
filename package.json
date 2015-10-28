@@ -4,22 +4,28 @@
   "description": "Find free rooms on the University of Waterloo's campus.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/StDako/Roomsurfer.git"
+    "url": "https://github.com/SaintDako/Roomsurfer.git"
   },
   "author": "Dakota St. Laurent",
   "license": "GPL",
   "bugs": {
-    "url": "https://github.com/StDako/Roomsurfer/issues"
+    "url": "https://github.com/SaintDako/Roomsurfer/issues"
   },
-  "homepage": "https://github.com/StDako/Roomsurfer",
+  "homepage": "https://github.com/SaintDako/Roomsurfer",
   "dependencies": {
     "body-parser": "^1.9.2",
     "express": "^4.10.2",
     "pg": "^4.4.0"
+  },
+  "devDependencies": {
+    "async": "^1.5.0",
+    "mocha": "^2.3.3",
+    "should": "^7.1.1",
+    "supertest": "^1.1.0"
   }
 }
