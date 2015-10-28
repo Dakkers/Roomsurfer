@@ -1,65 +1,99 @@
-Roomsurfer
-==========
+# Roomsurfer
 
 Roomsurfer is a web application that allows University of Waterloo students to find rooms on campus to study in. The user can check what time a room is available at, or they can find all rooms that are available during a certain time interval. there is also an API available (currently in the works).
 
-### API Usage
-the Roomsurfer API is very simple - you can only send GET requests using a URL. all queries must be sent to ```http://stdako.com/roomsurfer/api/METHOD```, where METHOD is replaced by one of the methods described below.
+## API Usage
+The Roomsurfer API is very simple - you can only send GET requests using a URL. All queries must be sent to `http://saintdako.com/roomsurfer/api/METHOD`, where METHOD is replaced by one of the methods described below.
 
-#### usedrooms
-find all of the rooms (building name and room number) that are being used this term. returns array of objects. example output:
+### `usedrooms`
+Find all of the rooms (building name and room number) that are being used this term. Returns an array of objects, where each object is of the form `{"building": BUILDING, "room": NUMBER}`.
+
+Example output:
+
 ```javascript
 [
-	{"building": "CPH", "rooms": ["1346", "3607", "3623", "	3679", "4333"]},
-	{"building": "PAS", "rooms": ["1229", "2083", "2086"]},
-	...
+    {"building": "AL", "room": "105"}, {"building": "AL", "room": "113"}, ...
+    {"building": "B1", "room": "169"}, {"building": "B1", "room": "266"}, ...
+    ...
 ]
 ```
 
-#### usedrooms/:building
-find all of the room numbers being used in a specific building this term. ```:building``` must be the building code returns an object. example output (http://stdako.com/roomsurfer/api/usedrooms/PHY) :
+### `usedrooms/:building`
+Find all of the room numbers being used in a specific building this term. `building` is the building code. Returns an array of objects, where each object is of the form `{"room": NUMBER}`.
+
+Example output (http://saintdako.com/roomsurfer/api/usedrooms/EIT) :
 
 ```javascript
-{"building": "PHY", "rooms": ["145","150","235","313"]}
+[
+    {"room":"1009"}, {"room":"1013"}, {"room":"1015"}, {"room":"2053"}, {"room":"3141"}, {"room":"3145"}, {"room":"3151"}
+]
 ```
 
-#### room/:room
-find all of the times that a room is free. returns an object. ```:room``` must be of the form BUILDINGCODE-ROOMNUM (e.g. RCH-308, mc-4045 ; both styles work). example output (http://stdako.com/roomsurfer/api/room/PHY-145):
+### `room/:building`
+Find all of the times that all of the rooms in a specified building are free. `building` is the building code. Returns an array of objects, where each object is of the form `{"room": ROOM, "day": DAY, "starttime": STARTTIME, "endtime": ENDTIME}`, where:
+
+- `ROOM` is a room number (integer)
+- `DAY` is one of: `M`, `T`, `W`, `Th`, `F` (string)
+- `STARTTIME` is the number of minutes (integer) where the room's free period begins, e.g. 510 represents 8:30 AM
+- `ENDTIME` is the number of minutes (integer) where the room's free period ends
+
+Example output (http://saintdako.com/roomsurfer/api/room/PHY):
+
 ```javascript
-{"room": "PHY 145", 
- "times": {
- 	"Th": [[690,860],[930,1310]],
- 	"M":[[510,620],[750,800],[870,1310]],
- 	"T":[[690,1310]],
- 	"W":[[510,620],[750,800],[870,1310]],
- 	"F":[[510,560],[750,800],[930,1310]]
- }
-}
+[
+    {"room":"145","day":"M","starttime":0,"endtime":510},   {"room":"145","day":"F","starttime":1010,"endtime":1439}, ...
+    {"room":"150","day":"F","starttime":680,"endtime":870}, {"room":"150","day":"F","starttime":920,"endtime":1439}, ...
+    ...
 ```
 
-all times are in minutes - use your own function to convert at the moment (formatting options will be available in the near future).
+### room/:building/:room
+Find all of the times that a specified room in a specified building is free.  `building` is the building code, `room` is the room number. Returns an array of objects, where each object is of the form `{"day": DAY, "starttime": STARTTIME, "endtime": ENDTIME}`.
 
-#### time/:time
-find all of the rooms that are free at a specific time. returns an object. ```:time``` must be of the form START-END-DAY (e.g. 780-1130-M). human-readable times are not supported yet. example output ():
+Example output (http://saintdako.com/roomsurfer/api/room/PHY/145):
+
 ```javascript
-{"time": "510,860,M",
- "rooms": ["AL 105","AL 124","AL 209","ARC 1001","ARC 1101","ARC 2026","ARC 3103","B1 370","B2 350","BMH 1016","CGR 1111","CGR 1300","CPH 1346","CPH 4333","DWE 1515","DWE 2529","DWE 3517","DWE 3522","E2 1303","E2 1303A","E5 6004","E6 2024","E6 4022","ECH 1205","EIT 1015","EIT 3141","EV3 3408","HH 124","HH 138","HH 280","HH 336","MC 1085","ML 117","OPT 309","PAS 2083","PAS 2086","PHR 1006","QNC 1502","QNC 1507","QNC 2502","RCH 204","RCH 302","REN 0104","REN 0106","REN 0203","REN 0402","REN 2102","REN 2104","REN 2107","STJ 1036","STJ 3014","STJ 3027","STP 201"]
-}
+[
+    {"day":"M","starttime":0,"endtime":510},
+    {"day":"M","starttime":1100,"endtime":1439},
+    {"day":"T","starttime":0,"endtime":510},
+    ...
+]
 ```
 
+### time/:day/:start?/:end?
+Find all of the rooms that are free at a specific time. `day` is one of `M`, `T`, `W`, `Th`, `F`, `start` is the room's free period start time in minutes, and `end` is the end time. If `start` is not specified, it defaults to `0`. If `end` is not specified, it defaults to `1439` (11:59 PM). Returns an array of objects, where each object is of the form: `{"building": BUILDING, "room": NUMBER}`.
 
-### Version History
-#### 1.0.0 (current)
-- switched to using a MEEN stack (MongoDB/Express/Ember/Node)
+Example output (http://saintdako.com/roomsurfer/api/time/M):
+
+```javascript
+[
+    {"building":"CPH","room":"3602"},{"building":"CPH","room":"3607"}, ...
+    {"building":"PAS","room":"1241"},{"building":"PAS","room":"2438"}, ...
+    ...
+```
+
+## Version History
+### 1.2.1 (current)
+- fixed a bug that prevented Thursday times from appearing
+
+### 1.2.0
+- switched to PostgreSQL
+- fixed front-end
+
+### 1.1.0
+- switched to MySQL
+
+### 1.0.0
+- switched to using a MEAN stack (MongoDB/Express/Angular/Node)
 - created the api
 - in process of fixing [#4](https://github.com/StDako/Roomsurfer/issues/4)
 
-#### 0.3.14
+### 0.3.14
 - switched from using jQuery for "data-binding" to KnockoutJS
 
-#### 0.2.71
+### 0.2.71
 - created Mongo database on my DigitalOcean server (i.e. created a backend)
 
-#### 0.1.61
+### 0.1.61
 - original app
 - loaded ALL of the data into the user's browser and called it through there (I did not own a server or know anything about web-dev / back-end stuff, so yeah)
